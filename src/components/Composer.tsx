@@ -24,6 +24,7 @@ export function Composer({
   const router = useRouter();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const emojiButtonRef = useRef<HTMLButtonElement>(null);
   const [kind, setKind] = useState<NoteKind>(replyToId ? "note" : defaultKind);
   const [body, setBody] = useState("");
   const [mood, setMood] = useState<Mood | "">("");
@@ -231,6 +232,7 @@ export function Composer({
             </button>
             <div className="relative">
               <button
+                ref={emojiButtonRef}
                 type="button"
                 aria-label="Add emoji"
                 aria-expanded={emojiOpen}
@@ -241,6 +243,7 @@ export function Composer({
               </button>
               <EmojiPicker
                 open={emojiOpen}
+                anchorRef={emojiButtonRef}
                 onClose={() => setEmojiOpen(false)}
                 onPick={insertEmoji}
               />

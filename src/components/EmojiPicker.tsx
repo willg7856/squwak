@@ -1,26 +1,67 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { EMOJIS } from "@/lib/emoji";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { searchEmojis } from "@/lib/emoji";
+
+const PANEL_WIDTH = 320;
 
 export function EmojiPicker({
   open,
+  anchorRef,
   onClose,
   onPick,
 }: {
   open: boolean;
+  anchorRef: { current: HTMLElement | null };
   onClose: () => void;
   onPick: (emoji: string) => void;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState("");
+  const [position, setPosition] = useState({ top: 0, left: 0, maxHeight: 360 });
+  const matches = useMemo(() => searchEmojis(query), [query]);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+
+    function place() {
+      const anchor = anchorRef.current;
+      if (!anchor) return;
+      const rect = anchor.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom - 12;
+      const spaceAbove = rect.top - 12;
+      const openBelow = spaceBelow >= 240 || spaceBelow >= spaceAbove;
+      const available = Math.max(180, openBelow ? spaceBelow : spaceAbove);
+      const maxHeight = Math.min(420, available);
+      let left = rect.left;
+      if (left + PANEL_WIDTH > window.innerWidth - 8) {
+        left = window.innerWidth - PANEL_WIDTH - 8;
+      }
+      if (left < 8) left = 8;
+      const top = openBelow ? rect.bottom + 8 : rect.top - maxHeight - 8;
+      setPosition({ top: Math.max(8, top), left, maxHeight });
+    }
+
+    place();
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [anchorRef, open]);
 
   useEffect(() => {
     if (!open) return;
+    searchRef.current?.focus();
 
     function onPointerDown(event: PointerEvent) {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
-        onClose();
-      }
+      const target = event.target as Node;
+      if (rootRef.current?.contains(target)) return;
+      if (anchorRef.current?.contains(target)) return;
+      onClose();
     }
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
@@ -32,29 +73,51 @@ export function EmojiPicker({
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [open, onClose]);
+  }, [anchorRef, onClose, open]);
 
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div
       ref={rootRef}
       role="dialog"
       aria-label="Emoji"
-      className="paper-card absolute bottom-full left-0 z-20 mb-2 w-72 p-2 shadow-lg"
+      className="paper-card fixed z-50 flex flex-col overflow-hidden p-2 shadow-lg"
+      style={{
+        top: position.top,
+        left: position.left,
+        width: PANEL_WIDTH,
+        maxHeight: position.maxHeight,
+      }}
     >
-      <div className="grid max-h-56 grid-cols-8 gap-0.5 overflow-y-auto">
-        {EMOJIS.map((emoji, index) => (
-          <button
-            key={`${emoji}-${index}`}
-            type="button"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-lg hover:bg-paper-2"
-            onClick={() => onPick(emoji)}
-          >
-            {emoji}
-          </button>
-        ))}
+      <input
+        ref={searchRef}
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="Search emoji"
+        className="mb-2 w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm text-ink outline-none placeholder:text-muted focus:border-accent"
+      />
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+        {matches.length === 0 ? (
+          <p className="px-2 py-6 text-center text-sm text-muted">No matching emoji.</p>
+        ) : (
+          <div className="grid grid-cols-8">
+            {matches.map((item) => (
+              <button
+                key={`${item.glyph}-${item.name}`}
+                type="button"
+                title={item.name}
+                aria-label={item.name}
+                className="flex aspect-square items-center justify-center rounded-lg text-xl leading-none hover:bg-paper-2"
+                onClick={() => onPick(item.glyph)}
+              >
+                {item.glyph}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
