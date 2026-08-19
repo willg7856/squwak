@@ -2,6 +2,8 @@
 
 A Twitter-like notes and journal app. Short public notes live in a stream. Longer journal pages can stay private or go out to readers you follow.
 
+**Live:** [squwak.beyondstagezero.com](https://squwak.beyondstagezero.com)
+
 ## Features
 
 - **Home stream** of notes from people you follow

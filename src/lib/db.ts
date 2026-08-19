@@ -1,15 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
-import Database from "better-sqlite3";
+import { DatabaseSync } from "node:sqlite";
 import { seedIfEmpty } from "./seed";
 
-const globalForDb = globalThis as unknown as { squwakDb?: Database.Database };
+const globalForDb = globalThis as unknown as { squwakDb?: DatabaseSync };
 
 function databasePath() {
-  return process.env.SQLITE_PATH ?? path.join(process.cwd(), "data", "squwak.db");
+  if (process.env.SQLITE_PATH) return process.env.SQLITE_PATH;
+  if (process.env.VERCEL) return "/tmp/squwak.db";
+  return path.join(process.cwd(), "data", "squwak.db");
 }
 
-function migrate(db: Database.Database) {
+function migrate(db: DatabaseSync) {
   db.exec(`
     PRAGMA journal_mode = WAL;
     PRAGMA foreign_keys = ON;
@@ -62,12 +64,12 @@ function migrate(db: Database.Database) {
   `);
 }
 
-export function getDb(): Database.Database {
+export function getDb(): DatabaseSync {
   if (globalForDb.squwakDb) return globalForDb.squwakDb;
 
   const file = databasePath();
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  const db = new Database(file);
+  const db = new DatabaseSync(file);
   migrate(db);
   seedIfEmpty(db);
   globalForDb.squwakDb = db;

@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import type Database from "better-sqlite3";
+import type { DatabaseSync } from "node:sqlite";
 
 const ago = ({
   days = 0,
@@ -11,7 +11,7 @@ const ago = ({
   minutes?: number;
 }) => Date.now() - (((days * 24 + hours) * 60 + minutes) * 60 * 1000);
 
-export function seedIfEmpty(db: Database.Database) {
+export function seedIfEmpty(db: DatabaseSync) {
   const count = db.prepare("SELECT COUNT(*) as n FROM users").get() as { n: number };
   if (count.n > 0) return;
 
