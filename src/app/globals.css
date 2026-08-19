@@ -1,16 +1,52 @@
 @import "tailwindcss";
 
+:root {
+  --paper: #f4efe6;
+  --paper-2: #ebe4d6;
+  --ink: #1a1714;
+  --muted: #6f675e;
+  --line: #e0d6c6;
+  --accent: #c45c26;
+  --accent-2: #9c4318;
+  --sky: #3d6b66;
+  --heart: #c23b4c;
+  --plum: #6b5b8a;
+  --wash-1: #faf6ee;
+  --wash-2: #efe6d4;
+  --select: #edc9ae;
+  --card: color-mix(in srgb, white 55%, var(--paper));
+  color-scheme: light;
+}
+
+.dark {
+  --paper: #14110e;
+  --paper-2: #1e1a16;
+  --ink: #f3ece3;
+  --muted: #b0a79b;
+  --line: #3a332c;
+  --accent: #e07a3d;
+  --accent-2: #c45c26;
+  --sky: #8fbfb8;
+  --heart: #e06a76;
+  --plum: #c2b3de;
+  --wash-1: #1c1814;
+  --wash-2: #241f1a;
+  --select: #6a3d22;
+  --card: color-mix(in srgb, black 28%, var(--paper));
+  color-scheme: dark;
+}
+
 @theme inline {
-  --color-paper: #f4efe6;
-  --color-paper-2: #ebe4d6;
-  --color-ink: #1a1714;
-  --color-muted: #6f675e;
-  --color-line: #e0d6c6;
-  --color-accent: #c45c26;
-  --color-accent-2: #9c4318;
-  --color-sky: #3d6b66;
-  --color-heart: #c23b4c;
-  --color-plum: #6b5b8a;
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-sky: var(--sky);
+  --color-heart: var(--heart);
+  --color-plum: var(--plum);
   --font-sans: var(--font-dm-sans);
   --font-serif: var(--font-fraunces);
   --font-journal: var(--font-source-serif);
@@ -23,16 +59,16 @@ html {
 body {
   min-height: 100%;
   background:
-    radial-gradient(1200px 600px at 10% -10%, #faf6ee 0%, transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, #efe6d4 0%, transparent 50%),
-    var(--color-paper);
-  color: var(--color-ink);
+    radial-gradient(1200px 600px at 10% -10%, var(--wash-1) 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, var(--wash-2) 0%, transparent 50%),
+    var(--paper);
+  color: var(--ink);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 ::selection {
-  background: #edc9ae;
-  color: var(--color-ink);
+  background: var(--select);
+  color: var(--ink);
 }
 
 textarea {
@@ -40,10 +76,14 @@ textarea {
 }
 
 .paper-card {
-  background: color-mix(in srgb, white 55%, var(--color-paper));
-  border: 1px solid var(--color-line);
+  background: var(--card);
+  border: 1px solid var(--line);
 }
 
 .grain {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+}
+
+.dark .grain {
+  opacity: 0.35;
 }

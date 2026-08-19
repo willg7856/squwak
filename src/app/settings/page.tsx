@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { useNotebook } from "@/components/NotebookProvider";
+import { useTheme } from "@/components/ThemeProvider";
 
 export default function SettingsPage() {
   const { user, updateProfile, updatePassword } = useNotebook();
+  const { theme, setTheme } = useTheme();
   const [profileMessage, setProfileMessage] = useState<string | null>(null);
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
   if (!user) return null;
@@ -39,7 +41,7 @@ export default function SettingsPage() {
             <input
               name="displayName"
               defaultValue={user.displayName}
-              className="mt-1 w-full rounded-xl border border-line bg-white/70 px-3 py-2.5 outline-none focus:border-accent"
+              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 outline-none focus:border-accent"
             />
           </label>
           <label className="block text-sm font-medium">
@@ -49,7 +51,7 @@ export default function SettingsPage() {
               defaultValue={user.bio}
               maxLength={180}
               rows={3}
-              className="mt-1 w-full rounded-xl border border-line bg-white/70 px-3 py-2.5 outline-none focus:border-accent"
+              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 outline-none focus:border-accent"
             />
           </label>
           <p className="text-sm text-muted">Username @{user.username} stays put.</p>
@@ -57,6 +59,27 @@ export default function SettingsPage() {
             Save profile
           </button>
         </form>
+
+        <div className="space-y-3 border-t border-line pt-8">
+          <h2 className="font-serif text-2xl">Appearance</h2>
+          <p className="text-sm text-muted">Choose a light or dark notebook.</p>
+          <div className="inline-flex rounded-full bg-paper-2 p-1 text-sm">
+            <button
+              type="button"
+              onClick={() => setTheme("light")}
+              className={`rounded-full px-3 py-1 font-medium ${theme === "light" ? "bg-paper text-ink shadow-sm" : "text-muted"}`}
+            >
+              Light
+            </button>
+            <button
+              type="button"
+              onClick={() => setTheme("dark")}
+              className={`rounded-full px-3 py-1 font-medium ${theme === "dark" ? "bg-paper text-ink shadow-sm" : "text-muted"}`}
+            >
+              Dark
+            </button>
+          </div>
+        </div>
 
         <form
           className="space-y-3 border-t border-line pt-8"
@@ -83,7 +106,7 @@ export default function SettingsPage() {
               name="password"
               type="password"
               minLength={6}
-              className="mt-1 w-full rounded-xl border border-line bg-white/70 px-3 py-2.5 outline-none focus:border-accent"
+              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 outline-none focus:border-accent"
             />
           </label>
           <button className="rounded-full border border-line px-4 py-2 text-sm font-semibold">

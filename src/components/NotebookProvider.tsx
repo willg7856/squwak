@@ -8,7 +8,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import type { Mood, NoteCardData, NoteKind, User, Visibility } from "@/lib/types";
+import type { Mood, NoteCardData, NoteKind, User } from "@/lib/types";
 import {
   createNote as createNoteInStore,
   currentUser,
@@ -51,7 +51,6 @@ type NotebookContextValue = {
     body: string;
     kind: NoteKind;
     mood: Mood | null;
-    visibility: Visibility;
     replyToId?: string | null;
   }) => string | null;
   deleteNote: (id: string) => void;

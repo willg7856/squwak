@@ -14,6 +14,7 @@ import {
   UserIcon,
 } from "./Icons";
 import { useNotebook } from "./NotebookProvider";
+import { ThemeToggle } from "./ThemeToggle";
 
 const NAV = [
   { href: "/home", label: "Home", icon: HomeIcon },
@@ -46,7 +47,7 @@ export function AppShell({
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium hover:bg-white/60"
+              className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium hover:bg-paper-2"
             >
               <item.icon className="h-6 w-6" />
               {item.label}
@@ -56,14 +57,14 @@ export function AppShell({
             <>
               <Link
                 href={`/u/${user.username}`}
-                className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium hover:bg-white/60"
+                className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium hover:bg-paper-2"
               >
                 <UserIcon className="h-6 w-6" />
                 Profile
               </Link>
               <Link
                 href="/settings"
-                className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium hover:bg-white/60"
+                className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium hover:bg-paper-2"
               >
                 <GearIcon className="h-6 w-6" />
                 Settings
@@ -82,7 +83,7 @@ export function AppShell({
             <button
               type="button"
               onClick={logout}
-              className="w-full rounded-full px-3 py-2 text-left text-sm text-muted hover:bg-white/60"
+              className="w-full rounded-full px-3 py-2 text-left text-sm text-muted hover:bg-paper-2"
             >
               Sign out @{user.username}
             </button>
@@ -105,11 +106,14 @@ export function AppShell({
             </Link>
             <h1 className="font-serif text-xl">{title}</h1>
           </div>
-          {user && (
-            <Link href={`/u/${user.username}`} className="md:hidden">
-              <Avatar name={user.displayName} hue={user.avatarHue} size={32} />
-            </Link>
-          )}
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            {user && (
+              <Link href={`/u/${user.username}`} className="md:hidden">
+                <Avatar name={user.displayName} hue={user.avatarHue} size={32} />
+              </Link>
+            )}
+          </div>
         </header>
         {children}
         <nav className="sticky bottom-0 z-10 grid grid-cols-4 border-t border-line bg-paper/95 py-2 md:hidden">

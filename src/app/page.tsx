@@ -2,13 +2,17 @@
 
 import Link from "next/link";
 import { BirdMark } from "@/components/Icons";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function LandingPage() {
   return (
     <div className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-16">
-      <div className="mb-8 flex items-center gap-3">
-        <BirdMark className="h-12 w-12 text-accent" />
-        <span className="font-serif text-4xl">Squwak</span>
+      <div className="mb-8 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <BirdMark className="h-12 w-12 text-accent" />
+          <span className="font-serif text-4xl">Squwak</span>
+        </div>
+        <ThemeToggle />
       </div>
       <h1 className="font-serif text-5xl leading-[1.1] sm:text-6xl">
         A private stream for the thoughts you meant to keep.
@@ -26,7 +30,7 @@ export default function LandingPage() {
         </Link>
         <Link
           href="/login"
-          className="rounded-full border border-line bg-white/50 px-5 py-3 font-semibold hover:border-ink/30"
+          className="rounded-full border border-line bg-paper-2 px-5 py-3 font-semibold hover:border-ink/30"
         >
           Sign in
         </Link>

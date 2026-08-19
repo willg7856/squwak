@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BirdMark } from "./Icons";
 import { useNotebook } from "./NotebookProvider";
+import { ThemeToggle } from "./ThemeToggle";
 
 const ERRORS: Record<string, string> = {
   invalid: "That username or password did not match.",
@@ -21,10 +22,13 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-5 py-12">
-      <Link href="/" className="mb-8 flex items-center gap-2">
-        <BirdMark className="h-10 w-10 text-accent" />
-        <span className="font-serif text-3xl">Squwak</span>
-      </Link>
+      <div className="mb-8 flex items-center justify-between gap-2">
+        <Link href="/" className="flex items-center gap-2">
+          <BirdMark className="h-10 w-10 text-accent" />
+          <span className="font-serif text-3xl">Squwak</span>
+        </Link>
+        <ThemeToggle />
+      </div>
       <h1 className="font-serif text-4xl leading-tight">
         {mode === "login" ? "Welcome back." : "Your private notebook."}
       </h1>
@@ -66,7 +70,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             name="username"
             required
             autoComplete="username"
-            className="mt-1 w-full rounded-xl border border-line bg-white/70 px-3 py-2.5 outline-none focus:border-accent"
+            className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 outline-none focus:border-accent"
           />
         </label>
         {mode === "signup" && (
@@ -76,7 +80,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
               name="displayName"
               required
               autoComplete="name"
-              className="mt-1 w-full rounded-xl border border-line bg-white/70 px-3 py-2.5 outline-none focus:border-accent"
+              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 outline-none focus:border-accent"
             />
           </label>
         )}
@@ -87,7 +91,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             type="password"
             required
             autoComplete={mode === "login" ? "current-password" : "new-password"}
-            className="mt-1 w-full rounded-xl border border-line bg-white/70 px-3 py-2.5 outline-none focus:border-accent"
+            className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 outline-none focus:border-accent"
           />
         </label>
         <button className="w-full rounded-full bg-accent py-3 font-semibold text-white hover:bg-accent-2">

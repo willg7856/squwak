@@ -277,7 +277,6 @@ export function createNote(
     body: string;
     kind: NoteKind;
     mood: Mood | null;
-    visibility: Visibility;
     replyToId?: string | null;
   },
 ): { state: NotebookState; noteId: string | null } {
@@ -294,7 +293,7 @@ export function createNote(
     body,
     kind,
     mood: kind === "journal" ? input.mood : null,
-    visibility: input.replyToId ? "private" : input.visibility,
+    visibility: "private",
     replyToId: input.replyToId ?? null,
     createdAt: Date.now(),
   };

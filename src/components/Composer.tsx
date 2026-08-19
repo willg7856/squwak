@@ -20,7 +20,6 @@ export function Composer({
   const [kind, setKind] = useState<NoteKind>(replyToId ? "note" : defaultKind);
   const [body, setBody] = useState("");
   const [mood, setMood] = useState<Mood | "">("");
-  const [isPrivate, setIsPrivate] = useState(true);
 
   const limit = kind === "journal" ? JOURNAL_LIMIT : NOTE_LIMIT;
   const remaining = limit - body.length;
@@ -41,7 +40,6 @@ export function Composer({
           body,
           kind,
           mood: mood || null,
-          visibility: isPrivate ? "private" : "public",
           replyToId,
         });
         if (!noteId) return;
@@ -59,17 +57,14 @@ export function Composer({
               <button
                 type="button"
                 onClick={() => setKind("note")}
-                className={`rounded-full px-3 py-1 font-medium ${kind === "note" ? "bg-white text-ink shadow-sm" : "text-muted"}`}
+                className={`rounded-full px-3 py-1 font-medium ${kind === "note" ? "bg-paper text-ink shadow-sm" : "text-muted"}`}
               >
                 Note
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setKind("journal");
-                  setIsPrivate(true);
-                }}
-                className={`rounded-full px-3 py-1 font-medium ${kind === "journal" ? "bg-white text-ink shadow-sm" : "text-muted"}`}
+                onClick={() => setKind("journal")}
+                className={`rounded-full px-3 py-1 font-medium ${kind === "journal" ? "bg-paper text-ink shadow-sm" : "text-muted"}`}
               >
                 Journal
               </button>
@@ -110,17 +105,6 @@ export function Composer({
           )}
 
           <div className="mt-3 flex flex-wrap items-center gap-3">
-            {!replyToId && (
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted">
-                <input
-                  type="checkbox"
-                  checked={isPrivate}
-                  onChange={(event) => setIsPrivate(event.target.checked)}
-                  className="accent-accent"
-                />
-                Keep private
-              </label>
-            )}
             <span
               className={`ml-auto text-sm tabular-nums ${remaining < 20 ? "text-heart" : "text-muted"}`}
             >

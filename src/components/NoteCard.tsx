@@ -5,7 +5,7 @@ import { formatFullDate, relativeTime } from "@/lib/time";
 import { renderRichText } from "@/lib/text";
 import { MOODS, type NoteCardData } from "@/lib/types";
 import { Avatar } from "./Avatar";
-import { BookmarkIcon, HeartIcon, LockIcon, ReplyIcon } from "./Icons";
+import { BookmarkIcon, HeartIcon, ReplyIcon } from "./Icons";
 import { useNotebook } from "./NotebookProvider";
 
 export function NoteCard({
@@ -36,12 +36,6 @@ export function NoteCard({
             {note.kind === "journal" && (
               <span className="rounded-full bg-plum/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-plum">
                 Journal
-              </span>
-            )}
-            {note.visibility === "private" && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted">
-                <LockIcon className="h-3 w-3" />
-                Private
               </span>
             )}
           </div>
