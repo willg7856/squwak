@@ -11,7 +11,6 @@ import {
   CompassIcon,
   GearIcon,
   HomeIcon,
-  UserIcon,
 } from "./Icons";
 import { useNotebook } from "./NotebookProvider";
 import { ThemeToggle } from "./ThemeToggle";
@@ -25,10 +24,12 @@ const NAV = [
 
 export function AppShell({
   title,
+  headerNav,
   children,
   showRail = true,
 }: {
   title: string;
+  headerNav?: { href: string; label: string; active: boolean }[];
   children: ReactNode;
   showRail?: boolean;
 }) {
@@ -54,22 +55,13 @@ export function AppShell({
             </Link>
           ))}
           {user && (
-            <>
-              <Link
-                href={`/u/${user.username}`}
-                className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium text-ink hover:bg-paper-2"
-              >
-                <UserIcon className="h-6 w-6" />
-                Profile
-              </Link>
-              <Link
-                href="/settings"
-                className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium text-ink hover:bg-paper-2"
-              >
-                <GearIcon className="h-6 w-6" />
-                Settings
-              </Link>
-            </>
+            <Link
+              href="/settings"
+              className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium text-ink hover:bg-paper-2"
+            >
+              <GearIcon className="h-6 w-6" />
+              Settings
+            </Link>
           )}
         </nav>
         {user ? (
@@ -99,20 +91,43 @@ export function AppShell({
       </aside>
 
       <main className="min-w-0 border-line md:border-r">
-        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-paper/85 px-4 py-3 backdrop-blur md:px-5">
-          <div className="flex items-center gap-3">
-            <Link href="/home" className="md:hidden">
+        <header className="sticky top-0 z-10 border-b border-line bg-paper/85 backdrop-blur">
+          <div className="flex items-center gap-2 px-2 md:px-3">
+            <Link href="/home" className="shrink-0 md:hidden">
               <BirdMark className="h-8 w-8 text-accent" />
             </Link>
-            <h1 className="font-serif text-xl text-ink">{title}</h1>
-          </div>
-          <div className="flex items-center gap-1">
-            <ThemeToggle />
-            {user && (
-              <Link href={`/u/${user.username}`} className="md:hidden">
-                <Avatar name={user.displayName} hue={user.avatarHue} size={32} />
-              </Link>
+            {headerNav ? (
+              <nav className="flex min-w-0 flex-1">
+                {headerNav.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex-1 py-3 text-center text-sm font-semibold ${
+                      item.active
+                        ? "border-b-2 border-accent text-ink"
+                        : "border-b-2 border-transparent text-muted hover:text-ink"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            ) : (
+              <h1 className="min-w-0 flex-1 px-2 py-3 font-serif text-xl text-ink">{title}</h1>
             )}
+            <div className="flex shrink-0 items-center gap-1">
+              <ThemeToggle />
+              {user && (
+                <Link href="/settings" className="md:hidden">
+                  <Avatar
+                    name={user.displayName}
+                    hue={user.avatarHue}
+                    avatarId={user.avatarId}
+                    size={32}
+                  />
+                </Link>
+              )}
+            </div>
           </div>
         </header>
         {children}

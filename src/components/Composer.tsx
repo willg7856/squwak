@@ -129,7 +129,7 @@ export function Composer({
       }}
     >
       <div className="flex gap-3">
-        <Avatar name={user.displayName} hue={user.avatarHue} />
+        <Avatar name={user.displayName} hue={user.avatarHue} avatarId={user.avatarId} />
         <div className="min-w-0 flex-1">
           {!replyToId && (
             <div className="mb-3 inline-flex rounded-full border border-line bg-paper-2 p-1 text-sm">

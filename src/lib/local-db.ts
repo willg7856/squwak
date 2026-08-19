@@ -55,9 +55,15 @@ function emit() {
 }
 
 function parseNotebook(raw: string): NotebookState {
-  const parsed = JSON.parse(raw) as Partial<NotebookState> & { notes?: Array<StoredNote & { imageIds?: string[] }> };
+  const parsed = JSON.parse(raw) as Partial<NotebookState> & {
+    notes?: Array<StoredNote & { imageIds?: string[] }>;
+    users?: Array<StoredUser & { avatarId?: string | null }>;
+  };
   return {
-    users: parsed.users ?? [],
+    users: (parsed.users ?? []).map((user) => ({
+      ...user,
+      avatarId: user.avatarId ?? null,
+    })),
     notes: (parsed.notes ?? []).map((note) => ({
       ...note,
       imageIds: note.imageIds ?? [],
@@ -103,6 +109,7 @@ function publicUser(user: StoredUser): User {
     displayName: user.displayName,
     bio: user.bio,
     avatarHue: user.avatarHue,
+    avatarId: user.avatarId ?? null,
     createdAt: user.createdAt,
   };
 }
@@ -128,6 +135,7 @@ function hydrateNote(state: NotebookState, note: StoredNote, viewerId: string): 
     username: author.username,
     displayName: author.displayName,
     avatarHue: author.avatarHue,
+    avatarId: author.avatarId ?? null,
     imageIds: note.imageIds ?? [],
     replyCount: state.notes.filter((item) => item.replyToId === note.id).length,
     bookmarked: state.bookmarks.some(
@@ -246,6 +254,7 @@ export function signup(
     displayName,
     bio: "",
     avatarHue: Math.floor(Math.random() * 360),
+    avatarId: null,
     createdAt: Date.now(),
     passwordHash: bcrypt.hashSync(password, 10),
   };
@@ -340,17 +349,26 @@ export function toggleBookmark(state: NotebookState, noteId: string): NotebookSt
 
 export function updateProfile(
   state: NotebookState,
-  input: { displayName: string; bio: string },
+  input: { displayName: string; username: string; avatarId: string | null },
 ): { state: NotebookState; result: AuthResult } {
   const user = currentUser(state);
   if (!user) return { state, result: { ok: false, error: "invalid" } };
   const displayName = input.displayName.trim();
-  if (displayName.length < 2) return { state, result: { ok: false, error: "name" } };
+  const username = input.username.trim().toLowerCase();
+  if (displayName.length < 2 || displayName.length > 40) {
+    return { state, result: { ok: false, error: "name" } };
+  }
+  if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+    return { state, result: { ok: false, error: "username" } };
+  }
+  if (state.users.some((item) => item.username === username && item.id !== user.id)) {
+    return { state, result: { ok: false, error: "taken" } };
+  }
   return {
     state: {
       ...state,
       users: state.users.map((item) =>
-        item.id === user.id ? { ...item, displayName, bio: input.bio.trim().slice(0, 180) } : item,
+        item.id === user.id ? { ...item, displayName, username, avatarId: input.avatarId } : item,
       ),
     },
     result: { ok: true },

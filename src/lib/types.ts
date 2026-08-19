@@ -17,6 +17,7 @@ export type User = {
   displayName: string;
   bio: string;
   avatarHue: number;
+  avatarId: string | null;
   createdAt: number;
 };
 
@@ -32,6 +33,7 @@ export type NoteCardData = {
   username: string;
   displayName: string;
   avatarHue: number;
+  avatarId: string | null;
   imageIds: string[];
   replyCount: number;
   bookmarked: boolean;

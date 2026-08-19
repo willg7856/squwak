@@ -89,3 +89,33 @@ export async function compressImage(file: File): Promise<Blob> {
     throw error instanceof Error ? error : new Error("compress");
   }
 }
+
+const AVATAR_EDGE = 512;
+const AVATAR_QUALITY = 0.84;
+
+export async function compressAvatar(file: File): Promise<Blob> {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("type");
+  }
+  const bitmap = await createImageBitmap(file);
+  const size = Math.min(bitmap.width, bitmap.height);
+  const sx = Math.max(0, (bitmap.width - size) / 2);
+  const sy = Math.max(0, (bitmap.height - size) / 2);
+  const canvas = document.createElement("canvas");
+  canvas.width = AVATAR_EDGE;
+  canvas.height = AVATAR_EDGE;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    bitmap.close();
+    throw new Error("compress");
+  }
+  ctx.drawImage(bitmap, sx, sy, size, size, 0, 0, AVATAR_EDGE, AVATAR_EDGE);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, "image/jpeg", AVATAR_QUALITY);
+  });
+  if (!blob || blob.size > MAX_BYTES) {
+    throw new Error("size");
+  }
+  return blob;
+}

@@ -56,7 +56,11 @@ type NotebookContextValue = {
   }) => Promise<string | null>;
   deleteNote: (id: string) => void;
   toggleBookmark: (id: string) => void;
-  updateProfile: (input: { displayName: string; bio: string }) => AuthResult;
+  updateProfile: (input: {
+    displayName: string;
+    username: string;
+    avatar?: Blob | null;
+  }) => Promise<AuthResult>;
   updatePassword: (password: string) => AuthResult;
 };
 
@@ -132,10 +136,38 @@ export function NotebookProvider({ children }: { children: ReactNode }) {
         void deleteImages(imageIds);
       },
       toggleBookmark: (id) => commit(toggleBookmarkInStore(snapshot, id)),
-      updateProfile: (input) => {
-        const { state: next, result } = updateProfileInStore(snapshot, input);
-        if (result.ok) commit(next);
-        return result;
+      updateProfile: async (input) => {
+        const previousAvatarId = user?.avatarId ?? null;
+        let avatarId = previousAvatarId;
+        try {
+          if (input.avatar === null) {
+            avatarId = null;
+          } else if (input.avatar) {
+            const id = crypto.randomUUID();
+            await putImage(id, input.avatar);
+            avatarId = id;
+          }
+          const current = getNotebookSnapshot();
+          const { state: next, result } = updateProfileInStore(current, {
+            displayName: input.displayName,
+            username: input.username,
+            avatarId,
+          });
+          if (result.ok) {
+            commit(next);
+            if (previousAvatarId && previousAvatarId !== avatarId) {
+              void deleteImages([previousAvatarId]);
+            }
+          } else if (avatarId && avatarId !== previousAvatarId) {
+            await deleteImages([avatarId]);
+          }
+          return result;
+        } catch {
+          if (avatarId && avatarId !== previousAvatarId) {
+            await deleteImages([avatarId]);
+          }
+          return { ok: false as const, error: "invalid" };
+        }
       },
       updatePassword: (password) => {
         const { state: next, result } = updatePasswordInStore(snapshot, password);
