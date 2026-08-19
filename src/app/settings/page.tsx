@@ -7,6 +7,7 @@ import { ImageIcon } from "@/components/Icons";
 import { useNotebook } from "@/components/NotebookProvider";
 import { useTheme } from "@/components/ThemeProvider";
 import { compressAvatar } from "@/lib/images";
+import { exportNotebook, importNotebook, type NotebookBackup } from "@/lib/backup";
 
 const ERRORS: Record<string, string> = {
   name: "Display name needs 2–40 characters.",
@@ -26,6 +27,7 @@ export default function SettingsPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [profileMessage, setProfileMessage] = useState<string | null>(null);
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
+  const [backupMessage, setBackupMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -217,6 +219,70 @@ export default function SettingsPage() {
             Update password
           </button>
         </form>
+
+        <div className="space-y-3 border-t border-line pt-8">
+          <h2 className="font-serif text-2xl">Backup</h2>
+          <p className="text-sm text-muted">
+            This notebook lives in this browser. Export a copy if you switch devices, or before
+            clearing site data.
+          </p>
+          {backupMessage === "exported" && (
+            <p className="rounded-xl bg-sky/10 px-3 py-2 text-sm text-sky">Downloaded a backup.</p>
+          )}
+          {backupMessage === "imported" && (
+            <p className="rounded-xl bg-sky/10 px-3 py-2 text-sm text-sky">Notebook restored.</p>
+          )}
+          {backupMessage && backupMessage !== "exported" && backupMessage !== "imported" && (
+            <p className="rounded-xl bg-heart/10 px-3 py-2 text-sm text-heart">{backupMessage}</p>
+          )}
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper"
+              onClick={async () => {
+                const backup = await exportNotebook();
+                if (!backup) {
+                  setBackupMessage("Could not export.");
+                  return;
+                }
+                const blob = new Blob([JSON.stringify(backup)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `squwak-backup-${new Date().toISOString().slice(0, 10)}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+                setBackupMessage("exported");
+              }}
+            >
+              Export notebook
+            </button>
+            <label className="rounded-full border border-line px-4 py-2 text-sm font-semibold">
+              Import backup
+              <input
+                type="file"
+                accept="application/json"
+                className="hidden"
+                onChange={async (event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = "";
+                  if (!file) return;
+                  try {
+                    const parsed = JSON.parse(await file.text()) as NotebookBackup;
+                    const result = await importNotebook(parsed);
+                    setBackupMessage(result.ok ? "imported" : "That file could not be restored.");
+                  } catch {
+                    setBackupMessage("That file could not be restored.");
+                  }
+                }}
+              />
+            </label>
+          </div>
+          <p className="text-xs text-muted">
+            Shortcuts: <kbd>n</kbd> new note, <kbd>j</kbd> journal, <kbd>/</kbd> search,{" "}
+            <kbd>⌘</kbd>+<kbd>Enter</kbd> to post.
+          </p>
+        </div>
       </div>
     </AppShell>
   );

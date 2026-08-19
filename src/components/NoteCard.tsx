@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { formatFullDate, relativeTime } from "@/lib/time";
 import { renderRichText } from "@/lib/text";
 import { MOODS, type NoteCardData } from "@/lib/types";
 import { Avatar } from "./Avatar";
-import { BookmarkIcon, ReplyIcon } from "./Icons";
+import { Composer } from "./Composer";
+import { BookmarkIcon, PencilIcon, PinIcon, ReplyIcon } from "./Icons";
 import { NoteImageGrid } from "./NoteImages";
 import { useNotebook } from "./NotebookProvider";
 
@@ -16,10 +18,15 @@ export function NoteCard({
   note: NoteCardData;
   showThreadLink?: boolean;
 }) {
-  const { user, toggleBookmark, deleteNote } = useNotebook();
+  const { user, toggleBookmark, togglePin, deleteNote } = useNotebook();
+  const [editing, setEditing] = useState(false);
   const mood = MOODS.find((item) => item.id === note.mood);
   const isOwner = user?.id === note.userId;
   const bodyClass = note.kind === "journal" ? "font-journal text-[1.05rem] leading-7" : "leading-6";
+
+  if (editing) {
+    return <Composer editNote={note} onDone={() => setEditing(false)} />;
+  }
 
   return (
     <article className="paper-card group relative border-x-0 px-4 py-4 first:border-t-0 sm:px-5">
@@ -37,23 +44,22 @@ export function NoteCard({
                 Journal
               </span>
             )}
+            {note.pinned && (
+              <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-accent">
+                Pinned
+              </span>
+            )}
           </div>
 
           {mood && (
             <div className="mt-1 flex items-center gap-1.5 text-xs text-muted">
-              <span
-                className="h-2 w-2 rounded-full"
-                style={{ background: mood.swatch }}
-                aria-hidden
-              />
+              <span className="h-2 w-2 rounded-full" style={{ background: mood.swatch }} aria-hidden />
               {mood.label}
             </div>
           )}
 
           {note.body.trim() ? (
-            <p className={`mt-2 whitespace-pre-wrap break-words text-ink ${bodyClass}`}>
-              {renderRichText(note.body)}
-            </p>
+            <div className={`mt-2 break-words text-ink ${bodyClass}`}>{renderRichText(note.body)}</div>
           ) : null}
 
           <NoteImageGrid ids={note.imageIds} />
@@ -79,6 +85,28 @@ export function NoteCard({
               <BookmarkIcon className="h-4 w-4" filled={note.bookmarked} />
             </button>
 
+            {isOwner && !note.replyToId && (
+              <button
+                type="button"
+                onClick={() => togglePin(note.id)}
+                className={`inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm hover:bg-accent/10 hover:text-accent ${note.pinned ? "text-accent" : ""}`}
+                aria-label={note.pinned ? "Unpin" : "Pin"}
+              >
+                <PinIcon className="h-4 w-4" filled={note.pinned} />
+              </button>
+            )}
+
+            {isOwner && (
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm hover:bg-paper-2"
+                aria-label="Edit"
+              >
+                <PencilIcon className="h-4 w-4" />
+              </button>
+            )}
+
             {isOwner && (
               <button
                 type="button"
@@ -98,14 +126,23 @@ export function NoteCard({
 export function EmptyState({
   title,
   body,
+  href,
+  action,
 }: {
   title: string;
   body: string;
+  href?: string;
+  action?: string;
 }) {
   return (
     <div className="px-6 py-16 text-center">
       <h2 className="font-serif text-2xl">{title}</h2>
       <p className="mx-auto mt-2 max-w-sm text-muted">{body}</p>
+      {href && action && (
+        <Link href={href} className="mt-4 inline-block text-sm font-semibold text-accent">
+          {action}
+        </Link>
+      )}
     </div>
   );
 }

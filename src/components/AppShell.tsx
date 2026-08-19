@@ -165,11 +165,11 @@ export function AppShell({
 
             <section className="rounded-2xl border border-line bg-paper-2 p-4">
               <h2 className="font-serif text-lg text-ink">Your tags</h2>
-              <ul className="mt-3 space-y-2">
+              <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto pr-1">
                 {tags.length === 0 && <li className="text-sm text-muted">Tags appear when you use #words.</li>}
                 {tags.map((item) => (
                   <li key={item.tag}>
-                    <Link href={`/explore?q=${encodeURIComponent(item.tag)}`} className="block">
+                    <Link href={`/explore?tag=${encodeURIComponent(item.tag)}`} className="block">
                       <div className="font-semibold">#{item.tag}</div>
                       <div className="text-xs text-muted">{item.count} notes</div>
                     </Link>

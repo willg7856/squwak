@@ -104,3 +104,9 @@ html:not(.dark) body.grain {
   cursor: not-allowed;
   opacity: 0.4;
 }
+
+.heat-0 { background: var(--paper-2); }
+.heat-1 { background: color-mix(in srgb, var(--accent) 30%, var(--paper-2)); }
+.heat-2 { background: color-mix(in srgb, var(--accent) 52%, var(--paper-2)); }
+.heat-3 { background: color-mix(in srgb, var(--accent) 76%, var(--paper-2)); }
+.heat-4 { background: var(--accent); }

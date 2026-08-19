@@ -26,7 +26,7 @@ export default function NotePage() {
       ) : (
         <>
           <NoteCard note={note} showThreadLink={false} />
-          <Composer replyToId={note.id} />
+          <Composer replyToId={note.id} draftKey={`reply:${note.id}`} />
           {replies.length === 0 ? (
             <EmptyState title="No replies yet." body="Add a note in the margin." />
           ) : (

@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
-import { JOURNAL_LIMIT, MAX_NOTE_IMAGES, NOTE_LIMIT, type Mood, type NoteCardData, type NoteKind, type User, type Visibility } from "./types";
+import { JOURNAL_LIMIT, MAX_NOTE_IMAGES, NOTE_LIMIT, type Mood, type NoteCardData, type NoteKind, type SearchFilters, type User, type Visibility } from "./types";
+import { dayKey, endOfDay, parseDayKey, startOfDay } from "./time";
 
 const STORAGE_KEY = "squwak.notebook.v1";
 
@@ -15,6 +16,8 @@ export type StoredNote = {
   replyToId: string | null;
   imageIds: string[];
   createdAt: number;
+  updatedAt: number;
+  pinned: boolean;
 };
 
 type StoredBookmark = { userId: string; noteId: string };
@@ -67,6 +70,8 @@ function parseNotebook(raw: string): NotebookState {
     notes: (parsed.notes ?? []).map((note) => ({
       ...note,
       imageIds: note.imageIds ?? [],
+      pinned: Boolean(note.pinned),
+      updatedAt: note.updatedAt ?? note.createdAt,
     })),
     bookmarks: parsed.bookmarks ?? [],
     sessionUserId: parsed.sessionUserId ?? null,
@@ -141,20 +146,27 @@ function hydrateNote(state: NotebookState, note: StoredNote, viewerId: string): 
     bookmarked: state.bookmarks.some(
       (bookmark) => bookmark.noteId === note.id && bookmark.userId === viewerId,
     ),
+    pinned: Boolean(note.pinned),
+    updatedAt: note.updatedAt ?? note.createdAt,
   };
 }
 
 export function listOwnNotes(
   state: NotebookState,
-  options: { kind?: NoteKind; bookmarked?: boolean; query?: string } = {},
+  options: { kind?: NoteKind; bookmarked?: boolean; query?: string; filters?: SearchFilters } = {},
 ): NoteCardData[] {
   const user = currentUser(state);
   if (!user) return [];
-  const query = options.query?.trim().replace(/^#/, "").toLowerCase() ?? "";
+  const filters = options.filters;
+  const query = (filters?.query ?? options.query)?.trim().replace(/^#/, "").toLowerCase() ?? "";
+  const tag = filters?.tag?.replace(/^#/, "").toLowerCase() ?? "";
+  const kind = filters?.kind && filters.kind !== "all" ? filters.kind : options.kind;
+  const from = filters?.from ? startOfDay(parseDayKey(filters.from).getTime()) : null;
+  const to = filters?.to ? endOfDay(parseDayKey(filters.to).getTime()) : null;
 
   return state.notes
     .filter((note) => note.userId === user.id && !note.replyToId)
-    .filter((note) => (options.kind ? note.kind === options.kind : true))
+    .filter((note) => (kind ? note.kind === kind : true))
     .filter((note) =>
       options.bookmarked
         ? state.bookmarks.some((bookmark) => bookmark.noteId === note.id && bookmark.userId === user.id)
@@ -163,6 +175,11 @@ export function listOwnNotes(
     .map((note) => hydrateNote(state, note, user.id))
     .filter((note): note is NoteCardData => Boolean(note))
     .filter((note) => {
+      if (filters?.mood && note.mood !== filters.mood) return false;
+      if (filters?.photos && note.imageIds.length === 0) return false;
+      if (from !== null && note.createdAt < from) return false;
+      if (to !== null && note.createdAt > to) return false;
+      if (tag && !note.body.toLowerCase().includes(`#${tag}`)) return false;
       if (!query) return true;
       return (
         note.body.toLowerCase().includes(query) ||
@@ -170,7 +187,10 @@ export function listOwnNotes(
         note.displayName.toLowerCase().includes(query)
       );
     })
-    .sort((a, b) => b.createdAt - a.createdAt);
+    .sort((a, b) => {
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+      return b.createdAt - a.createdAt;
+    });
 }
 
 export function getOwnNote(state: NotebookState, id: string): NoteCardData | null {
@@ -205,8 +225,19 @@ export function ownTags(state: NotebookState): { tag: string; count: number }[] 
   }
   return [...counts.entries()]
     .map(([tag, count]) => ({ tag, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 6);
+    .sort((a, b) => b.count - a.count);
+}
+
+export function ownActivity(state: NotebookState): Record<string, number> {
+  const user = currentUser(state);
+  const counts: Record<string, number> = {};
+  if (!user) return counts;
+  for (const note of state.notes) {
+    if (note.userId !== user.id || note.replyToId) continue;
+    const key = dayKey(note.createdAt);
+    counts[key] = (counts[key] ?? 0) + 1;
+  }
+  return counts;
 }
 
 export function ownStats(state: NotebookState) {
@@ -281,6 +312,7 @@ export function createNote(
     mood: Mood | null;
     replyToId?: string | null;
     imageIds?: string[];
+    createdAt?: number;
   },
 ): { state: NotebookState; noteId: string | null } {
   const user = currentUser(state);
@@ -290,6 +322,7 @@ export function createNote(
   const kind = input.replyToId ? "note" : input.kind;
   const limit = kind === "journal" ? JOURNAL_LIMIT : NOTE_LIMIT;
   if ((!body && imageIds.length === 0) || body.length > limit) return { state, noteId: null };
+  const createdAt = input.createdAt && input.createdAt <= Date.now() + 60_000 ? input.createdAt : Date.now();
 
   const note: StoredNote = {
     id: crypto.randomUUID(),
@@ -300,10 +333,63 @@ export function createNote(
     visibility: "private",
     replyToId: input.replyToId ?? null,
     imageIds,
-    createdAt: Date.now(),
+    createdAt,
+    updatedAt: Date.now(),
+    pinned: false,
   };
 
   return { state: { ...state, notes: [note, ...state.notes] }, noteId: note.id };
+}
+
+export function updateNote(
+  state: NotebookState,
+  input: {
+    id: string;
+    body: string;
+    mood: Mood | null;
+    imageIds: string[];
+    createdAt?: number;
+  },
+): { state: NotebookState; ok: boolean } {
+  const user = currentUser(state);
+  if (!user) return { state, ok: false };
+  const existing = state.notes.find((note) => note.id === input.id && note.userId === user.id);
+  if (!existing) return { state, ok: false };
+  const body = input.body.trim();
+  const imageIds = input.imageIds.slice(0, MAX_NOTE_IMAGES);
+  const limit = existing.kind === "journal" ? JOURNAL_LIMIT : NOTE_LIMIT;
+  if ((!body && imageIds.length === 0) || body.length > limit) return { state, ok: false };
+  const createdAt =
+    input.createdAt && input.createdAt <= Date.now() + 60_000 ? input.createdAt : existing.createdAt;
+  return {
+    state: {
+      ...state,
+      notes: state.notes.map((note) =>
+        note.id === existing.id
+          ? {
+              ...note,
+              body,
+              mood: existing.kind === "journal" ? input.mood : null,
+              imageIds,
+              createdAt,
+              updatedAt: Date.now(),
+            }
+          : note,
+      ),
+    },
+    ok: true,
+  };
+}
+
+export function togglePin(state: NotebookState, noteId: string): NotebookState {
+  const user = currentUser(state);
+  if (!user) return state;
+  const note = state.notes.find((item) => item.id === noteId && item.userId === user.id && !item.replyToId);
+  if (!note) return state;
+  return {
+    ...state,
+    notes: state.notes.map((item) => (item.id === noteId ? { ...item, pinned: !item.pinned } : item)),
+  };
 }
 
 export function noteTreeImageIds(state: NotebookState, id: string): string[] {

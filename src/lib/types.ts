@@ -37,6 +37,8 @@ export type NoteCardData = {
   imageIds: string[];
   replyCount: number;
   bookmarked: boolean;
+  pinned: boolean;
+  updatedAt: number;
 };
 
 export const MOODS: { id: Mood; label: string; swatch: string }[] = [
@@ -53,3 +55,13 @@ export const MOODS: { id: Mood; label: string; swatch: string }[] = [
 export const NOTE_LIMIT = 280;
 export const JOURNAL_LIMIT = 4000;
 export const MAX_NOTE_IMAGES = 4;
+
+export type SearchFilters = {
+  query?: string;
+  kind?: NoteKind | "all";
+  mood?: Mood | "";
+  tag?: string;
+  photos?: boolean;
+  from?: string;
+  to?: string;
+};

@@ -9,7 +9,6 @@ import {
   type ReactNode,
 } from "react";
 import { deleteImages, putImage } from "@/lib/images";
-import type { Mood, NoteCardData, NoteKind, User } from "@/lib/types";
 import {
   createNote as createNoteInStore,
   currentUser,
@@ -22,16 +21,20 @@ import {
   login as loginInStore,
   logout as logoutInStore,
   noteTreeImageIds,
+  ownActivity,
   ownStats,
   ownTags,
   saveNotebook,
   signup as signupInStore,
   subscribeNotebook,
   toggleBookmark as toggleBookmarkInStore,
+  togglePin as togglePinInStore,
+  updateNote as updateNoteInStore,
   updatePassword as updatePasswordInStore,
   updateProfile as updateProfileInStore,
   type AuthResult,
 } from "@/lib/local-db";
+import type { Mood, NoteCardData, NoteKind, SearchFilters, User } from "@/lib/types";
 
 type NotebookContextValue = {
   ready: boolean;
@@ -41,7 +44,8 @@ type NotebookContextValue = {
   savedNotes: NoteCardData[];
   tags: { tag: string; count: number }[];
   stats: { notes: number; journals: number };
-  search: (query?: string) => NoteCardData[];
+  activity: Record<string, number>;
+  search: (filters?: SearchFilters) => NoteCardData[];
   noteById: (id: string) => NoteCardData | null;
   repliesFor: (id: string) => NoteCardData[];
   login: (username: string, password: string) => AuthResult;
@@ -52,10 +56,20 @@ type NotebookContextValue = {
     kind: NoteKind;
     mood: Mood | null;
     replyToId?: string | null;
+    createdAt?: number;
+    images?: Blob[];
+  }) => Promise<string | null>;
+  updateNote: (input: {
+    id: string;
+    body: string;
+    mood: Mood | null;
+    createdAt?: number;
+    keepImageIds: string[];
     images?: Blob[];
   }) => Promise<string | null>;
   deleteNote: (id: string) => void;
   toggleBookmark: (id: string) => void;
+  togglePin: (id: string) => void;
   updateProfile: (input: {
     displayName: string;
     username: string;
@@ -89,7 +103,8 @@ export function NotebookProvider({ children }: { children: ReactNode }) {
       savedNotes: listOwnNotes(snapshot, { bookmarked: true }),
       tags: ownTags(snapshot),
       stats: ownStats(snapshot),
-      search: (query) => listOwnNotes(snapshot, { query }),
+      activity: ownActivity(snapshot),
+      search: (filters) => listOwnNotes(snapshot, { filters, query: filters?.query }),
       noteById: (id) => getOwnNote(snapshot, id),
       repliesFor: (id) => listOwnReplies(snapshot, id),
       login: (username, password) => {
@@ -117,6 +132,7 @@ export function NotebookProvider({ children }: { children: ReactNode }) {
             kind: input.kind,
             mood: input.mood,
             replyToId: input.replyToId,
+            createdAt: input.createdAt,
             imageIds,
           });
           if (noteId) {
@@ -135,7 +151,40 @@ export function NotebookProvider({ children }: { children: ReactNode }) {
         commit(deleteNoteInStore(snapshot, id));
         void deleteImages(imageIds);
       },
+      updateNote: async (input) => {
+        const existing = getOwnNote(snapshot, input.id);
+        if (!existing) return null;
+        const added: string[] = [];
+        try {
+          for (const blob of input.images ?? []) {
+            const id = crypto.randomUUID();
+            await putImage(id, blob);
+            added.push(id);
+          }
+          const imageIds = [...input.keepImageIds, ...added];
+          const current = getNotebookSnapshot();
+          const { state: next, ok } = updateNoteInStore(current, {
+            id: input.id,
+            body: input.body,
+            mood: input.mood,
+            createdAt: input.createdAt,
+            imageIds,
+          });
+          if (!ok) {
+            await deleteImages(added);
+            return null;
+          }
+          commit(next);
+          const removed = existing.imageIds.filter((id) => !imageIds.includes(id));
+          void deleteImages(removed);
+          return input.id;
+        } catch {
+          await deleteImages(added);
+          return null;
+        }
+      },
       toggleBookmark: (id) => commit(toggleBookmarkInStore(snapshot, id)),
+      togglePin: (id) => commit(togglePinInStore(snapshot, id)),
       updateProfile: async (input) => {
         const previousAvatarId = user?.avatarId ?? null;
         let avatarId = previousAvatarId;

@@ -13,8 +13,12 @@ export function SearchBox({ initialQuery = "" }: { initialQuery?: string }) {
       className="border-b border-line px-4 py-3"
       onSubmit={(event) => {
         event.preventDefault();
-        const next = value.trim();
-        router.push(next ? `/explore?q=${encodeURIComponent(next)}` : "/explore");
+        const next = new URLSearchParams(params.toString());
+        const q = value.trim();
+        if (q) next.set("q", q);
+        else next.delete("q");
+        const qs = next.toString();
+        router.push(qs ? `/explore?${qs}` : "/explore");
       }}
     >
       <input
@@ -22,6 +26,7 @@ export function SearchBox({ initialQuery = "" }: { initialQuery?: string }) {
         onChange={(event) => setValue(event.target.value)}
         placeholder="Search your notes and tags"
         className="w-full rounded-full border border-line bg-paper-2 px-4 py-2.5 text-ink outline-none placeholder:text-muted"
+        id="squwak-search"
       />
     </form>
   );

@@ -1,5 +1,8 @@
 export function relativeTime(timestamp: number): string {
-  const seconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
+  const seconds = Math.floor((Date.now() - timestamp) / 1000);
+  if (seconds < 0) {
+    return new Date(timestamp).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
   if (seconds < 45) return "now";
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m`;
@@ -58,4 +61,81 @@ export function dailyPrompt(now = Date.now()): string {
   ];
   const day = Math.floor(now / 86_400_000);
   return prompts[day % prompts.length];
+}
+
+export function dayKey(timestamp: number): string {
+  const date = new Date(timestamp);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function parseDayKey(key: string): Date {
+  const [year, month, day] = key.split("-").map(Number);
+  return new Date(year, (month ?? 1) - 1, day ?? 1);
+}
+
+export function startOfDay(timestamp: number): number {
+  const date = new Date(timestamp);
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
+}
+
+export function endOfDay(timestamp: number): number {
+  const date = new Date(timestamp);
+  date.setHours(23, 59, 59, 999);
+  return date.getTime();
+}
+
+export function toDateTimeLocal(timestamp: number): string {
+  const date = new Date(timestamp);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hour = String(date.getHours()).padStart(2, "0");
+  const minute = String(date.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+}
+
+export function fromDateTimeLocal(value: string): number {
+  const parsed = new Date(value);
+  const time = parsed.getTime();
+  return Number.isNaN(time) ? Date.now() : time;
+}
+
+export type HeatCell = { date: string; count: number; future: boolean };
+
+export function contributionWeeks(counts: Record<string, number>, weekCount = 53): HeatCell[][] {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = new Date(today);
+  start.setDate(start.getDate() - (weekCount - 1) * 7 - start.getDay());
+
+  const cells: HeatCell[] = [];
+  const cursor = new Date(start);
+  const last = new Date(today);
+  last.setDate(last.getDate() + (6 - last.getDay()));
+
+  while (cursor <= last) {
+    const date = dayKey(cursor.getTime());
+    cells.push({
+      date,
+      count: counts[date] ?? 0,
+      future: cursor.getTime() > today.getTime(),
+    });
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  const weeks: HeatCell[][] = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+  return weeks;
+}
+
+export function heatLevel(count: number): 0 | 1 | 2 | 3 | 4 {
+  if (count <= 0) return 0;
+  if (count === 1) return 1;
+  if (count <= 3) return 2;
+  if (count <= 6) return 3;
+  return 4;
 }

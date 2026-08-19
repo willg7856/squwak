@@ -106,6 +106,24 @@ export function CloseIcon(props: IconProps) {
   );
 }
 
+export function PinIcon({ filled, ...props }: IconProps & { filled?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" {...base} fill={filled ? "currentColor" : "none"} {...props}>
+      <path d="M15 4.5 19.5 9l-3 1-5 5-1.5-1.5 5-5z" />
+      <path d="m10.5 13.5-5 5" />
+    </svg>
+  );
+}
+
+export function PencilIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" {...base} {...props}>
+      <path d="M13.5 5.5 18.5 10.5 8 21H3v-5z" />
+      <path d="m16 8 2.5-2.5 2 2L18 10" />
+    </svg>
+  );
+}
+
 export function BirdMark(props: IconProps) {
   return (
     <svg viewBox="0 0 32 32" fill="none" {...props}>
