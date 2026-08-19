@@ -38,8 +38,6 @@ export type NoteCardData = {
   bookmarked: boolean;
 };
 
-export type SessionUser = User;
-
 export const MOODS: { id: Mood; label: string; swatch: string }[] = [
   { id: "grateful", label: "Grateful", swatch: "#C45C26" },
   { id: "restless", label: "Restless", swatch: "#B4532A" },

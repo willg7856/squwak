@@ -1,27 +1,16 @@
 # Squwak
 
-A Twitter-like notes and journal app. Short public notes live in a stream. Longer journal pages can stay private or go out to readers you follow.
+A private notes and journal app. Short notes and longer journal pages, only for the person signed in.
 
 **Live:** [squwak.beyondstagezero.com](https://squwak.beyondstagezero.com)
 
 ## Features
 
-- **Home stream** of notes from people you follow
-- **Composer** with Note (280 characters) and Journal (longer, moods, private)
-- **Threads** with replies
-- **Likes, bookmarks, follows**
-- **Explore + search** across notes, tags, and names
-- **Profiles** with notes, journal, and likes tabs
-- Local **SQLite** storage, no hosted backend required
-
-## Demo accounts
-
-Password for all of these is `squwak`:
-
-- `willow`
-- `kai`
-- `mira`
-- `juniper`
+- Home stream of **your** notes only
+- Composer with Note (280 characters) and Journal (longer, moods, private)
+- Threads with replies
+- Likes, bookmarks, and search across your own notebook
+- Account and notes saved in the browser so you can sign back in
 
 ## Run locally
 
@@ -30,6 +19,4 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The SQLite file is created at `data/squwak.db` on first request.
-
-Set `SESSION_SECRET` in production. Optionally set `SQLITE_PATH` to choose a different database file.
+Open [http://localhost:3000](http://localhost:3000).

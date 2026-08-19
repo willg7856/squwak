@@ -1,27 +1,24 @@
+"use client";
+
 import { AppShell } from "@/components/AppShell";
 import { Composer } from "@/components/Composer";
 import { EmptyState, NoteCard } from "@/components/NoteCard";
-import { getCurrentUser } from "@/lib/auth";
-import { listHomeNotes } from "@/lib/notes";
-import { redirect } from "next/navigation";
+import { useNotebook } from "@/components/NotebookProvider";
 
-export const dynamic = "force-dynamic";
-
-export default async function HomePage() {
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
-  const notes = listHomeNotes(user.id);
+export default function HomePage() {
+  const { user, notes } = useNotebook();
+  if (!user) return null;
 
   return (
-    <AppShell user={user} title="Home">
-      <Composer displayName={user.displayName} avatarHue={user.avatarHue} />
+    <AppShell title="Home">
+      <Composer />
       {notes.length === 0 ? (
         <EmptyState
-          title="Your stream is quiet."
-          body="Follow a few notebooks from Explore, or post the first note of the day."
+          title="Your notebook is empty."
+          body="Write the first note of the day. Only you will see it."
         />
       ) : (
-        notes.map((note) => <NoteCard key={note.id} note={note} currentUserId={user.id} />)
+        notes.map((note) => <NoteCard key={note.id} note={note} />)
       )}
     </AppShell>
   );

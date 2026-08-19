@@ -7,15 +7,10 @@ export function renderRichText(body: string): ReactNode[] {
   const parts = body.split(TOKEN);
   return parts.map((part, index) => {
     if (part.startsWith("@")) {
-      const username = part.slice(1);
       return (
-        <Link
-          key={`${part}-${index}`}
-          href={`/u/${username}`}
-          className="text-sky hover:underline"
-        >
+        <span key={`${part}-${index}`} className="text-sky">
           {part}
-        </Link>
+        </span>
       );
     }
     if (part.startsWith("#")) {
@@ -32,9 +27,4 @@ export function renderRichText(body: string): ReactNode[] {
     }
     return <span key={index}>{part}</span>;
   });
-}
-
-export function extractTags(body: string): string[] {
-  const matches = body.match(/#([a-zA-Z][\w-]{0,48})/g) ?? [];
-  return [...new Set(matches.map((tag) => tag.slice(1).toLowerCase()))];
 }

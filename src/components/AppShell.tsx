@@ -1,10 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { logoutAction } from "@/lib/actions";
 import { dailyPrompt } from "@/lib/time";
-import { trendingTags } from "@/lib/notes";
-import type { User } from "@/lib/types";
-import { suggestedUsers } from "@/lib/users";
 import { Avatar } from "./Avatar";
 import {
   BirdMark,
@@ -15,27 +13,25 @@ import {
   HomeIcon,
   UserIcon,
 } from "./Icons";
+import { useNotebook } from "./NotebookProvider";
 
 const NAV = [
   { href: "/home", label: "Home", icon: HomeIcon },
-  { href: "/explore", label: "Explore", icon: CompassIcon },
+  { href: "/explore", label: "Search", icon: CompassIcon },
   { href: "/journal", label: "Journal", icon: BookIcon },
   { href: "/bookmarks", label: "Saved", icon: BookmarkIcon },
 ];
 
 export function AppShell({
-  user,
   title,
   children,
   showRail = true,
 }: {
-  user: User | null;
   title: string;
   children: ReactNode;
   showRail?: boolean;
 }) {
-  const tags = trendingTags();
-  const suggestions = suggestedUsers(user?.id ?? null);
+  const { user, tags, logout } = useNotebook();
   const prompt = dailyPrompt();
 
   return (
@@ -83,18 +79,20 @@ export function AppShell({
             >
               New note
             </Link>
-            <form action={logoutAction}>
-              <button className="w-full rounded-full px-3 py-2 text-left text-sm text-muted hover:bg-white/60">
-                Sign out @{user.username}
-              </button>
-            </form>
+            <button
+              type="button"
+              onClick={logout}
+              className="w-full rounded-full px-3 py-2 text-left text-sm text-muted hover:bg-white/60"
+            >
+              Sign out @{user.username}
+            </button>
           </div>
         ) : (
           <Link
             href="/signup"
             className="mt-auto block rounded-full bg-accent py-3 text-center font-semibold text-white hover:bg-accent-2"
           >
-            Join Squwak
+            Start a notebook
           </Link>
         )}
       </aside>
@@ -135,7 +133,7 @@ export function AppShell({
               href="/explore"
               className="block rounded-2xl bg-paper-2 px-4 py-3 text-sm text-muted"
             >
-              Search notes and tags
+              Search your notes
             </Link>
 
             <section className="rounded-2xl bg-paper-2 p-4">
@@ -147,9 +145,9 @@ export function AppShell({
             </section>
 
             <section className="rounded-2xl bg-paper-2 p-4">
-              <h2 className="font-serif text-lg">In the air</h2>
+              <h2 className="font-serif text-lg">Your tags</h2>
               <ul className="mt-3 space-y-2">
-                {tags.length === 0 && <li className="text-sm text-muted">No tags yet.</li>}
+                {tags.length === 0 && <li className="text-sm text-muted">Tags appear when you use #words.</li>}
                 {tags.map((item) => (
                   <li key={item.tag}>
                     <Link href={`/explore?q=${encodeURIComponent(item.tag)}`} className="block">
@@ -160,30 +158,6 @@ export function AppShell({
                 ))}
               </ul>
             </section>
-
-            {suggestions.length > 0 && (
-              <section className="rounded-2xl bg-paper-2 p-4">
-                <h2 className="font-serif text-lg">Who to read</h2>
-                <ul className="mt-3 space-y-3">
-                  {suggestions.map((person) => (
-                    <li key={person.id} className="flex items-center gap-3">
-                      <Avatar
-                        name={person.displayName}
-                        hue={person.avatarHue}
-                        size={36}
-                        href={`/u/${person.username}`}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <Link href={`/u/${person.username}`} className="block truncate font-semibold">
-                          {person.displayName}
-                        </Link>
-                        <div className="truncate text-xs text-muted">@{person.username}</div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
           </div>
         </aside>
       )}

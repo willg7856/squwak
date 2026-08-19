@@ -20,7 +20,7 @@ export function SearchBox({ initialQuery = "" }: { initialQuery?: string }) {
       <input
         value={value}
         onChange={(event) => setValue(event.target.value)}
-        placeholder="Search notes, tags, people"
+        placeholder="Search your notes and tags"
         className="w-full rounded-full bg-paper-2 px-4 py-2.5 outline-none placeholder:text-muted"
       />
     </form>

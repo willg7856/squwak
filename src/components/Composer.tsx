@@ -1,27 +1,26 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createNoteAction } from "@/lib/actions";
+import { useRouter } from "next/navigation";
 import { JOURNAL_LIMIT, MOODS, NOTE_LIMIT, type Mood, type NoteKind } from "@/lib/types";
 import { Avatar } from "./Avatar";
+import { useNotebook } from "./NotebookProvider";
 
 export function Composer({
-  displayName,
-  avatarHue,
   defaultKind = "note",
   replyToId,
   prompt,
 }: {
-  displayName: string;
-  avatarHue: number;
   defaultKind?: NoteKind;
   replyToId?: string;
   prompt?: string;
 }) {
+  const { user, createNote } = useNotebook();
+  const router = useRouter();
   const [kind, setKind] = useState<NoteKind>(replyToId ? "note" : defaultKind);
   const [body, setBody] = useState("");
   const [mood, setMood] = useState<Mood | "">("");
-  const [isPrivate, setIsPrivate] = useState(defaultKind === "journal");
+  const [isPrivate, setIsPrivate] = useState(true);
 
   const limit = kind === "journal" ? JOURNAL_LIMIT : NOTE_LIMIT;
   const remaining = limit - body.length;
@@ -31,15 +30,29 @@ export function Composer({
     return "A note, a thought, a scrap of the day…";
   }, [kind, prompt, replyToId]);
 
-  return (
-    <form action={createNoteAction} className="paper-card border-x-0 px-4 py-4 sm:px-5">
-      {replyToId && <input type="hidden" name="replyToId" value={replyToId} />}
-      <input type="hidden" name="kind" value={kind} />
-      <input type="hidden" name="mood" value={mood} />
-      <input type="hidden" name="visibility" value={isPrivate ? "private" : "public"} />
+  if (!user) return null;
 
+  return (
+    <form
+      className="paper-card border-x-0 px-4 py-4 sm:px-5"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const noteId = createNote({
+          body,
+          kind,
+          mood: mood || null,
+          visibility: isPrivate ? "private" : "public",
+          replyToId,
+        });
+        if (!noteId) return;
+        setBody("");
+        setMood("");
+        if (replyToId) router.push(`/n/${replyToId}`);
+        else if (kind === "journal") router.push("/journal");
+      }}
+    >
       <div className="flex gap-3">
-        <Avatar name={displayName} hue={avatarHue} />
+        <Avatar name={user.displayName} hue={user.avatarHue} />
         <div className="min-w-0 flex-1">
           {!replyToId && (
             <div className="mb-3 inline-flex rounded-full bg-paper-2 p-1 text-sm">
@@ -64,7 +77,6 @@ export function Composer({
           )}
 
           <textarea
-            name="body"
             value={body}
             onChange={(event) => setBody(event.target.value.slice(0, limit))}
             placeholder={placeholder}

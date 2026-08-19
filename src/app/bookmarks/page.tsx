@@ -1,25 +1,22 @@
+"use client";
+
 import { AppShell } from "@/components/AppShell";
 import { EmptyState, NoteCard } from "@/components/NoteCard";
-import { getCurrentUser } from "@/lib/auth";
-import { listBookmarks } from "@/lib/notes";
-import { redirect } from "next/navigation";
+import { useNotebook } from "@/components/NotebookProvider";
 
-export const dynamic = "force-dynamic";
-
-export default async function BookmarksPage() {
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
-  const notes = listBookmarks(user.id);
+export default function BookmarksPage() {
+  const { user, savedNotes } = useNotebook();
+  if (!user) return null;
 
   return (
-    <AppShell user={user} title="Saved">
-      {notes.length === 0 ? (
+    <AppShell title="Saved">
+      {savedNotes.length === 0 ? (
         <EmptyState
           title="Nothing saved yet."
-          body="Bookmark a note from the stream and it will wait for you here."
+          body="Bookmark one of your notes and it will wait for you here."
         />
       ) : (
-        notes.map((note) => <NoteCard key={note.id} note={note} currentUserId={user.id} />)
+        savedNotes.map((note) => <NoteCard key={note.id} note={note} />)
       )}
     </AppShell>
   );

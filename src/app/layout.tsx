@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { DM_Sans, Fraunces, Source_Serif_4 } from "next/font/google";
+import { Providers } from "@/components/Providers";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -20,7 +21,7 @@ const sourceSerif = Source_Serif_4({
 
 export const metadata: Metadata = {
   title: "Squwak — notes & journal",
-  description: "A Twitter-like stream for short notes and longer journal pages.",
+  description: "A private notebook for short notes and longer journal pages.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="en"
       className={`${dmSans.variable} ${fraunces.variable} ${sourceSerif.variable} h-full antialiased`}
     >
-      <body className="grain min-h-full">{children}</body>
+      <body className="grain min-h-full">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

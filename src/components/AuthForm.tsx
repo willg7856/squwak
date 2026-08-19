@@ -1,24 +1,24 @@
-import { demoLoginAction, loginAction, signupAction } from "@/lib/actions";
-import { listDemoUsers } from "@/lib/users";
-import { BirdMark } from "./Icons";
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { BirdMark } from "./Icons";
+import { useNotebook } from "./NotebookProvider";
 
 const ERRORS: Record<string, string> = {
   invalid: "That username or password did not match.",
   username: "Usernames should be 3–20 characters: letters, numbers, underscore.",
   name: "Choose a display name between 2 and 40 characters.",
   password: "Passwords need at least 6 characters.",
-  taken: "That username is already taken.",
+  taken: "That username is already saved in this browser.",
 };
 
-export function AuthForm({
-  mode,
-  error,
-}: {
-  mode: "login" | "signup";
-  error?: string;
-}) {
-  const demos = listDemoUsers();
+export function AuthForm({ mode }: { mode: "login" | "signup" }) {
+  const { login, signup } = useNotebook();
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-5 py-12">
       <Link href="/" className="mb-8 flex items-center gap-2">
@@ -26,19 +26,40 @@ export function AuthForm({
         <span className="font-serif text-3xl">Squwak</span>
       </Link>
       <h1 className="font-serif text-4xl leading-tight">
-        {mode === "login" ? "Welcome back." : "Keep a public notebook."}
+        {mode === "login" ? "Welcome back." : "Your private notebook."}
       </h1>
       <p className="mt-2 text-muted">
         {mode === "login"
-          ? "Sign in to your notes and journal."
-          : "Short notes, longer journal pages, one stream."}
+          ? "Sign in with the account you created on this device."
+          : "Short notes and longer journal pages, just for you."}
       </p>
 
       {error && ERRORS[error] && (
         <p className="mt-4 rounded-xl bg-heart/10 px-3 py-2 text-sm text-heart">{ERRORS[error]}</p>
       )}
 
-      <form action={mode === "login" ? loginAction : signupAction} className="mt-6 space-y-3">
+      <form
+        className="mt-6 space-y-3"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const form = new FormData(event.currentTarget);
+          const username = String(form.get("username") ?? "");
+          const password = String(form.get("password") ?? "");
+          const result =
+            mode === "login"
+              ? login(username, password)
+              : signup({
+                  username,
+                  displayName: String(form.get("displayName") ?? ""),
+                  password,
+                });
+          if (!result.ok) {
+            setError(result.error);
+            return;
+          }
+          router.push("/home");
+        }}
+      >
         <label className="block text-sm font-medium">
           Username
           <input
@@ -91,22 +112,10 @@ export function AuthForm({
           </>
         )}
       </p>
-
-      <div className="mt-10">
-        <p className="text-sm font-medium text-muted">Try a demo notebook</p>
-        <p className="mt-1 text-xs text-muted">Password for all demo accounts: squwak</p>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          {demos.map((person) => (
-            <form action={demoLoginAction} key={person.username}>
-              <input type="hidden" name="username" value={person.username} />
-              <button className="w-full rounded-xl border border-line bg-white/60 px-3 py-2 text-left text-sm hover:border-accent">
-                <span className="block font-semibold">{person.displayName}</span>
-                <span className="text-muted">@{person.username}</span>
-              </button>
-            </form>
-          ))}
-        </div>
-      </div>
+      <p className="mt-6 text-xs leading-5 text-muted">
+        Your account and notes stay in this browser, so you can sign back in without creating a new
+        one. Clearing site data will remove them.
+      </p>
     </div>
   );
 }

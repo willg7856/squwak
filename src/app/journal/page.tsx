@@ -1,21 +1,18 @@
+"use client";
+
 import { AppShell } from "@/components/AppShell";
 import { Composer } from "@/components/Composer";
 import { EmptyState, NoteCard } from "@/components/NoteCard";
-import { getCurrentUser } from "@/lib/auth";
-import { listJournalNotes } from "@/lib/notes";
+import { useNotebook } from "@/components/NotebookProvider";
 import { dailyPrompt, formatDayHeading } from "@/lib/time";
-import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default async function JournalPage() {
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
-  const notes = listJournalNotes(user.id, user.id);
+export default function JournalPage() {
+  const { user, journalNotes } = useNotebook();
   const prompt = dailyPrompt();
+  if (!user) return null;
 
-  const grouped = new Map<string, typeof notes>();
-  for (const note of notes) {
+  const grouped = new Map<string, typeof journalNotes>();
+  for (const note of journalNotes) {
     const heading = formatDayHeading(note.createdAt);
     const list = grouped.get(heading) ?? [];
     list.push(note);
@@ -23,21 +20,16 @@ export default async function JournalPage() {
   }
 
   return (
-    <AppShell user={user} title="Journal">
+    <AppShell title="Journal">
       <div className="border-b border-line bg-plum/5 px-5 py-4">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-plum">Prompt</p>
         <p className="mt-1 font-journal text-xl leading-8">{prompt}</p>
       </div>
-      <Composer
-        displayName={user.displayName}
-        avatarHue={user.avatarHue}
-        defaultKind="journal"
-        prompt={prompt}
-      />
-      {notes.length === 0 ? (
+      <Composer defaultKind="journal" prompt={prompt} />
+      {journalNotes.length === 0 ? (
         <EmptyState
           title="No pages yet."
-          body="Journal entries can be private or public. They live here, dated, with a mood if you want one."
+          body="Journal entries live here, dated, with a mood if you want one."
         />
       ) : (
         [...grouped.entries()].map(([heading, dayNotes]) => (
@@ -46,7 +38,7 @@ export default async function JournalPage() {
               {heading}
             </h2>
             {dayNotes.map((note) => (
-              <NoteCard key={note.id} note={note} currentUserId={user.id} />
+              <NoteCard key={note.id} note={note} />
             ))}
           </section>
         ))

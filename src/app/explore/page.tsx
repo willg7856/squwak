@@ -1,26 +1,21 @@
+"use client";
+
 import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState, NoteCard } from "@/components/NoteCard";
 import { SearchBox } from "@/components/SearchBox";
-import { getCurrentUser } from "@/lib/auth";
-import { listExploreNotes } from "@/lib/notes";
+import { useNotebook } from "@/components/NotebookProvider";
 
-export const dynamic = "force-dynamic";
-
-export default async function ExplorePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string }>;
-}) {
-  const user = await getCurrentUser();
-  const { q } = await searchParams;
-  const notes = listExploreNotes(user?.id ?? null, q);
+function ExploreBody() {
+  const { search } = useNotebook();
+  const params = useSearchParams();
+  const q = params.get("q") ?? "";
+  const notes = search(q);
 
   return (
-    <AppShell user={user} title="Explore">
-      <Suspense>
-        <SearchBox initialQuery={q} />
-      </Suspense>
+    <AppShell title="Search">
+      <SearchBox initialQuery={q} />
       {q && (
         <div className="border-b border-line px-5 py-3 text-sm text-muted">
           Results for <span className="font-semibold text-ink">{q}</span>
@@ -29,13 +24,19 @@ export default async function ExplorePage({
       {notes.length === 0 ? (
         <EmptyState
           title="Nothing in the margins."
-          body="Try another word, or browse the public stream without a query."
+          body="Search across your own notes and tags."
         />
       ) : (
-        notes.map((note) => (
-          <NoteCard key={note.id} note={note} currentUserId={user?.id ?? null} />
-        ))
+        notes.map((note) => <NoteCard key={note.id} note={note} />)
       )}
     </AppShell>
+  );
+}
+
+export default function ExplorePage() {
+  return (
+    <Suspense>
+      <ExploreBody />
+    </Suspense>
   );
 }

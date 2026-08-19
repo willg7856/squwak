@@ -1,38 +1,39 @@
+"use client";
+
+import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { updatePasswordAction, updateProfileAction } from "@/lib/actions";
-import { getCurrentUser } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { useNotebook } from "@/components/NotebookProvider";
 
-export const dynamic = "force-dynamic";
-
-export default async function SettingsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ saved?: string; error?: string }>;
-}) {
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
-  const { saved, error } = await searchParams;
+export default function SettingsPage() {
+  const { user, updateProfile, updatePassword } = useNotebook();
+  const [profileMessage, setProfileMessage] = useState<string | null>(null);
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
+  if (!user) return null;
 
   return (
-    <AppShell user={user} title="Settings" showRail={false}>
+    <AppShell title="Settings" showRail={false}>
       <div className="space-y-8 px-5 py-6">
-        {saved && (
-          <p className="rounded-xl bg-sky/10 px-3 py-2 text-sm text-sky">Saved.</p>
-        )}
-        {error === "name" && (
-          <p className="rounded-xl bg-heart/10 px-3 py-2 text-sm text-heart">
-            Display name needs at least 2 characters.
-          </p>
-        )}
-        {error === "password" && (
-          <p className="rounded-xl bg-heart/10 px-3 py-2 text-sm text-heart">
-            Password needs at least 6 characters.
-          </p>
-        )}
-
-        <form action={updateProfileAction} className="space-y-3">
+        <form
+          className="space-y-3"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const form = new FormData(event.currentTarget);
+            const result = updateProfile({
+              displayName: String(form.get("displayName") ?? ""),
+              bio: String(form.get("bio") ?? ""),
+            });
+            setProfileMessage(result.ok ? "saved" : result.error);
+          }}
+        >
           <h2 className="font-serif text-2xl">Profile</h2>
+          {profileMessage === "saved" && (
+            <p className="rounded-xl bg-sky/10 px-3 py-2 text-sm text-sky">Saved.</p>
+          )}
+          {profileMessage === "name" && (
+            <p className="rounded-xl bg-heart/10 px-3 py-2 text-sm text-heart">
+              Display name needs at least 2 characters.
+            </p>
+          )}
           <label className="block text-sm font-medium">
             Display name
             <input
@@ -57,8 +58,25 @@ export default async function SettingsPage({
           </button>
         </form>
 
-        <form action={updatePasswordAction} className="space-y-3 border-t border-line pt-8">
+        <form
+          className="space-y-3 border-t border-line pt-8"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const form = new FormData(event.currentTarget);
+            const result = updatePassword(String(form.get("password") ?? ""));
+            setPasswordMessage(result.ok ? "saved" : result.error);
+            if (result.ok) event.currentTarget.reset();
+          }}
+        >
           <h2 className="font-serif text-2xl">Password</h2>
+          {passwordMessage === "saved" && (
+            <p className="rounded-xl bg-sky/10 px-3 py-2 text-sm text-sky">Saved.</p>
+          )}
+          {passwordMessage === "password" && (
+            <p className="rounded-xl bg-heart/10 px-3 py-2 text-sm text-heart">
+              Password needs at least 6 characters.
+            </p>
+          )}
           <label className="block text-sm font-medium">
             New password
             <input
