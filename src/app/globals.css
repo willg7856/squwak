@@ -8,6 +8,7 @@
   --line: #e0d6c6;
   --accent: #c45c26;
   --accent-2: #9c4318;
+  --on-accent: #ffffff;
   --sky: #3d6b66;
   --heart: #c23b4c;
   --plum: #6b5b8a;
@@ -19,20 +20,21 @@
 }
 
 .dark {
-  --paper: #14110e;
-  --paper-2: #1e1a16;
-  --ink: #f3ece3;
-  --muted: #b0a79b;
-  --line: #3a332c;
-  --accent: #e07a3d;
-  --accent-2: #c45c26;
-  --sky: #8fbfb8;
-  --heart: #e06a76;
-  --plum: #c2b3de;
-  --wash-1: #1c1814;
-  --wash-2: #241f1a;
-  --select: #6a3d22;
-  --card: color-mix(in srgb, black 28%, var(--paper));
+  --paper: #0b0c10;
+  --paper-2: #1c1f2a;
+  --ink: #f4f5f7;
+  --muted: #c9cdd6;
+  --line: #3a3f4d;
+  --accent: #ff7a3c;
+  --accent-2: #ff925c;
+  --on-accent: #ffffff;
+  --sky: #8ed4cc;
+  --heart: #ff7382;
+  --plum: #d2c4ff;
+  --wash-1: #12141c;
+  --wash-2: #10131a;
+  --select: #5a2f18;
+  --card: #161922;
   color-scheme: dark;
 }
 
@@ -44,9 +46,11 @@
   --color-line: var(--line);
   --color-accent: var(--accent);
   --color-accent-2: var(--accent-2);
+  --color-on-accent: var(--on-accent);
   --color-sky: var(--sky);
   --color-heart: var(--heart);
   --color-plum: var(--plum);
+  --color-card: var(--card);
   --font-sans: var(--font-dm-sans);
   --font-serif: var(--font-fraunces);
   --font-journal: var(--font-source-serif);
@@ -58,10 +62,10 @@ html {
 
 body {
   min-height: 100%;
-  background:
+  background-color: var(--paper);
+  background-image:
     radial-gradient(1200px 600px at 10% -10%, var(--wash-1) 0%, transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, var(--wash-2) 0%, transparent 50%),
-    var(--paper);
+    radial-gradient(900px 500px at 100% 0%, var(--wash-2) 0%, transparent 50%);
   color: var(--ink);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
@@ -80,10 +84,23 @@ textarea {
   border: 1px solid var(--line);
 }
 
-.grain {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+html:not(.dark) body.grain {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E"),
+    radial-gradient(1200px 600px at 10% -10%, var(--wash-1) 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, var(--wash-2) 0%, transparent 50%);
 }
 
-.dark .grain {
-  opacity: 0.35;
+.btn-accent {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn-accent:hover {
+  background: var(--accent-2);
+}
+
+.btn-accent:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
 }

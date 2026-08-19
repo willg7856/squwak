@@ -70,7 +70,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             name="username"
             required
             autoComplete="username"
-            className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 outline-none focus:border-accent"
+            className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-ink outline-none focus:border-accent"
           />
         </label>
         {mode === "signup" && (
@@ -80,7 +80,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
               name="displayName"
               required
               autoComplete="name"
-              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 outline-none focus:border-accent"
+              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-ink outline-none focus:border-accent"
             />
           </label>
         )}
@@ -91,10 +91,10 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             type="password"
             required
             autoComplete={mode === "login" ? "current-password" : "new-password"}
-            className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 outline-none focus:border-accent"
+            className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-ink outline-none focus:border-accent"
           />
         </label>
-        <button className="w-full rounded-full bg-accent py-3 font-semibold text-white hover:bg-accent-2">
+        <button className="btn-accent w-full rounded-full py-3 font-semibold">
           {mode === "login" ? "Sign in" : "Create account"}
         </button>
       </form>

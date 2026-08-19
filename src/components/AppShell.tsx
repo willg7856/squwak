@@ -40,14 +40,14 @@ export function AppShell({
       <aside className="sticky top-0 hidden h-screen flex-col border-r border-line px-4 py-6 md:flex">
         <Link href={user ? "/home" : "/"} className="mb-8 flex items-center gap-2.5 px-2">
           <BirdMark className="h-9 w-9 text-accent" />
-          <span className="font-serif text-2xl tracking-tight">Squwak</span>
+          <span className="font-serif text-2xl tracking-tight text-ink">Squwak</span>
         </Link>
         <nav className="flex flex-1 flex-col gap-1">
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium hover:bg-paper-2"
+              className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium text-ink hover:bg-paper-2"
             >
               <item.icon className="h-6 w-6" />
               {item.label}
@@ -57,14 +57,14 @@ export function AppShell({
             <>
               <Link
                 href={`/u/${user.username}`}
-                className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium hover:bg-paper-2"
+                className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium text-ink hover:bg-paper-2"
               >
                 <UserIcon className="h-6 w-6" />
                 Profile
               </Link>
               <Link
                 href="/settings"
-                className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium hover:bg-paper-2"
+                className="flex items-center gap-3 rounded-full px-3 py-2.5 text-[17px] font-medium text-ink hover:bg-paper-2"
               >
                 <GearIcon className="h-6 w-6" />
                 Settings
@@ -76,7 +76,7 @@ export function AppShell({
           <div className="mt-auto space-y-3">
             <Link
               href="/home"
-              className="block rounded-full bg-accent py-3 text-center font-semibold text-white hover:bg-accent-2"
+              className="btn-accent block rounded-full py-3 text-center font-semibold"
             >
               New note
             </Link>
@@ -91,7 +91,7 @@ export function AppShell({
         ) : (
           <Link
             href="/signup"
-            className="mt-auto block rounded-full bg-accent py-3 text-center font-semibold text-white hover:bg-accent-2"
+            className="btn-accent mt-auto block rounded-full py-3 text-center font-semibold"
           >
             Start a notebook
           </Link>
@@ -104,7 +104,7 @@ export function AppShell({
             <Link href="/home" className="md:hidden">
               <BirdMark className="h-8 w-8 text-accent" />
             </Link>
-            <h1 className="font-serif text-xl">{title}</h1>
+            <h1 className="font-serif text-xl text-ink">{title}</h1>
           </div>
           <div className="flex items-center gap-1">
             <ThemeToggle />
@@ -121,7 +121,7 @@ export function AppShell({
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-col items-center gap-1 py-1 text-[11px] text-muted"
+              className="flex flex-col items-center gap-1 py-1 text-[11px] text-ink"
             >
               <item.icon className="h-5 w-5 text-ink" />
               {item.label}
@@ -135,21 +135,21 @@ export function AppShell({
           <div className="space-y-4">
             <Link
               href="/explore"
-              className="block rounded-2xl bg-paper-2 px-4 py-3 text-sm text-muted"
+              className="block rounded-2xl border border-line bg-paper-2 px-4 py-3 text-sm text-ink"
             >
               Search your notes
             </Link>
 
-            <section className="rounded-2xl bg-paper-2 p-4">
-              <h2 className="font-serif text-lg">Today’s prompt</h2>
-              <p className="mt-2 font-journal text-[1.05rem] leading-7 text-ink/90">{prompt}</p>
+            <section className="rounded-2xl border border-line bg-paper-2 p-4">
+              <h2 className="font-serif text-lg text-ink">Today’s prompt</h2>
+              <p className="mt-2 font-journal text-[1.05rem] leading-7 text-ink">{prompt}</p>
               <Link href="/journal" className="mt-3 inline-block text-sm font-semibold text-accent">
                 Write a page →
               </Link>
             </section>
 
-            <section className="rounded-2xl bg-paper-2 p-4">
-              <h2 className="font-serif text-lg">Your tags</h2>
+            <section className="rounded-2xl border border-line bg-paper-2 p-4">
+              <h2 className="font-serif text-lg text-ink">Your tags</h2>
               <ul className="mt-3 space-y-2">
                 {tags.length === 0 && <li className="text-sm text-muted">Tags appear when you use #words.</li>}
                 {tags.map((item) => (

@@ -21,7 +21,7 @@ export function SearchBox({ initialQuery = "" }: { initialQuery?: string }) {
         value={value}
         onChange={(event) => setValue(event.target.value)}
         placeholder="Search your notes and tags"
-        className="w-full rounded-full bg-paper-2 px-4 py-2.5 outline-none placeholder:text-muted"
+        className="w-full rounded-full border border-line bg-paper-2 px-4 py-2.5 text-ink outline-none placeholder:text-muted"
       />
     </form>
   );

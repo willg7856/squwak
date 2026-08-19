@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import Script from "next/script";
 import { DM_Sans, Fraunces, Source_Serif_4 } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import "./globals.css";
@@ -32,10 +31,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       suppressHydrationWarning
       className={`${dmSans.variable} ${fraunces.variable} ${sourceSerif.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem("squwak.theme");if(t==="dark"||(t!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark"}}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="grain min-h-full">
-        <Script id="squwak-theme" strategy="beforeInteractive">
-          {`try{var t=localStorage.getItem("squwak.theme");var d=t==="dark"||(t!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches);if(d){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark"}}catch(e){}`}
-        </Script>
         <Providers>{children}</Providers>
       </body>
     </html>

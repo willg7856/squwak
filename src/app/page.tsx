@@ -24,7 +24,7 @@ export default function LandingPage() {
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
           href="/signup"
-          className="rounded-full bg-accent px-5 py-3 font-semibold text-white hover:bg-accent-2"
+          className="btn-accent rounded-full px-5 py-3 font-semibold"
         >
           Start a notebook
         </Link>

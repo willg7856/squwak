@@ -26,7 +26,7 @@ export function NoteCard({
         <Avatar name={note.displayName} hue={note.avatarHue} href={`/u/${note.username}`} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <Link href={`/u/${note.username}`} className="font-semibold hover:underline">
+            <Link href={`/u/${note.username}`} className="font-semibold text-ink hover:underline">
               {note.displayName}
             </Link>
             <span className="text-sm text-muted">@{note.username}</span>

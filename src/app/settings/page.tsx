@@ -41,7 +41,7 @@ export default function SettingsPage() {
             <input
               name="displayName"
               defaultValue={user.displayName}
-              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 outline-none focus:border-accent"
+              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-ink outline-none focus:border-accent"
             />
           </label>
           <label className="block text-sm font-medium">
@@ -51,7 +51,7 @@ export default function SettingsPage() {
               defaultValue={user.bio}
               maxLength={180}
               rows={3}
-              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 outline-none focus:border-accent"
+              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-ink outline-none focus:border-accent"
             />
           </label>
           <p className="text-sm text-muted">Username @{user.username} stays put.</p>
@@ -67,14 +67,14 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={() => setTheme("light")}
-              className={`rounded-full px-3 py-1 font-medium ${theme === "light" ? "bg-paper text-ink shadow-sm" : "text-muted"}`}
+              className={`rounded-full px-3 py-1 font-medium ${theme === "light" ? "bg-card text-ink shadow-sm" : "text-muted"}`}
             >
               Light
             </button>
             <button
               type="button"
               onClick={() => setTheme("dark")}
-              className={`rounded-full px-3 py-1 font-medium ${theme === "dark" ? "bg-paper text-ink shadow-sm" : "text-muted"}`}
+              className={`rounded-full px-3 py-1 font-medium ${theme === "dark" ? "bg-card text-ink shadow-sm" : "text-muted"}`}
             >
               Dark
             </button>
@@ -106,7 +106,7 @@ export default function SettingsPage() {
               name="password"
               type="password"
               minLength={6}
-              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 outline-none focus:border-accent"
+              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-ink outline-none focus:border-accent"
             />
           </label>
           <button className="rounded-full border border-line px-4 py-2 text-sm font-semibold">

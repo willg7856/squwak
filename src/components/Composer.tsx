@@ -53,18 +53,18 @@ export function Composer({
         <Avatar name={user.displayName} hue={user.avatarHue} />
         <div className="min-w-0 flex-1">
           {!replyToId && (
-            <div className="mb-3 inline-flex rounded-full bg-paper-2 p-1 text-sm">
+            <div className="mb-3 inline-flex rounded-full border border-line bg-paper-2 p-1 text-sm">
               <button
                 type="button"
                 onClick={() => setKind("note")}
-                className={`rounded-full px-3 py-1 font-medium ${kind === "note" ? "bg-paper text-ink shadow-sm" : "text-muted"}`}
+                className={`rounded-full px-3 py-1 font-medium ${kind === "note" ? "bg-card text-ink shadow-sm" : "text-muted"}`}
               >
                 Note
               </button>
               <button
                 type="button"
                 onClick={() => setKind("journal")}
-                className={`rounded-full px-3 py-1 font-medium ${kind === "journal" ? "bg-paper text-ink shadow-sm" : "text-muted"}`}
+                className={`rounded-full px-3 py-1 font-medium ${kind === "journal" ? "bg-card text-ink shadow-sm" : "text-muted"}`}
               >
                 Journal
               </button>
@@ -76,7 +76,7 @@ export function Composer({
             onChange={(event) => setBody(event.target.value.slice(0, limit))}
             placeholder={placeholder}
             rows={kind === "journal" ? 5 : 3}
-            className={`w-full resize-none bg-transparent text-[17px] outline-none placeholder:text-muted/70 ${kind === "journal" ? "font-journal leading-7" : "leading-6"}`}
+            className={`w-full resize-none bg-transparent text-[17px] text-ink outline-none placeholder:text-muted ${kind === "journal" ? "font-journal leading-7" : "leading-6"}`}
             required
           />
 
@@ -113,7 +113,7 @@ export function Composer({
             <button
               type="submit"
               disabled={!body.trim()}
-              className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent-2 disabled:cursor-not-allowed disabled:opacity-40"
+              className="btn-accent rounded-full px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
             >
               {replyToId ? "Reply" : kind === "journal" ? "Keep page" : "Squwak"}
             </button>

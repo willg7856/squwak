@@ -84,9 +84,9 @@ export function BirdMark(props: IconProps) {
       <rect width="32" height="32" rx="10" fill="currentColor" />
       <path
         d="M8 19c4-1 7-4 8.5-8 1.2 3.2 3.6 5.4 7.5 6.2-2.4.8-4.1 1.2-5.2 2.6-.8 1-1 2.2-.8 4.2-2.4-1.6-4.8-2.2-7.2-1.6-1.5.4-2.8 1.2-3.8 2.2 0-2.2.3-3.8 1-5.6Z"
-        fill="var(--paper)"
+        fill="#F4EFE6"
       />
-      <circle cx="13.2" cy="12.2" r="1" fill="var(--ink)" />
+      <circle cx="13.2" cy="12.2" r="1" fill="#1A1714" />
     </svg>
   );
 }
