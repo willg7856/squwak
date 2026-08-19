@@ -36,6 +36,15 @@ export function BookIcon(props: IconProps) {
   );
 }
 
+export function NoteIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" {...base} {...props}>
+      <path d="M7 4h8l4 4v11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" />
+      <path d="M15 4v4h4M8.5 12h7M8.5 16h5" />
+    </svg>
+  );
+}
+
 export function BookmarkIcon({ filled, ...props }: IconProps & { filled?: boolean }) {
   return (
     <svg viewBox="0 0 24 24" {...base} fill={filled ? "currentColor" : "none"} {...props}>

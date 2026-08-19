@@ -5,20 +5,22 @@ import { Composer } from "@/components/Composer";
 import { EmptyState, NoteCard } from "@/components/NoteCard";
 import { useNotebook } from "@/components/NotebookProvider";
 
-export default function HomePage() {
+export default function NotesPage() {
   const { user, notes } = useNotebook();
   if (!user) return null;
 
+  const shortNotes = notes.filter((note) => note.kind === "note");
+
   return (
-    <AppShell title="Home">
-      <Composer />
-      {notes.length === 0 ? (
+    <AppShell title="Notes">
+      <Composer defaultKind="note" />
+      {shortNotes.length === 0 ? (
         <EmptyState
-          title="Your notebook is empty."
-          body="Write the first note of the day. Only you will see it."
+          title="No short notes yet."
+          body="Squwak something small. Longer pages live under Journal."
         />
       ) : (
-        notes.map((note) => <NoteCard key={note.id} note={note} />)
+        shortNotes.map((note) => <NoteCard key={note.id} note={note} />)
       )}
     </AppShell>
   );

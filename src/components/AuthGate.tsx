@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { BootScreen, useNotebook } from "./NotebookProvider";
 
-const PROTECTED = ["/home", "/journal", "/bookmarks", "/settings", "/explore", "/n/", "/u/"];
+const PROTECTED = ["/home", "/notes", "/journal", "/bookmarks", "/settings", "/explore", "/n/", "/u/"];
 
 export function AuthGate({ children }: { children: ReactNode }) {
   const { ready, user } = useNotebook();
