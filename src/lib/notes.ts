@@ -39,7 +39,7 @@ function mapNote(row: NoteRow): NoteCardData {
   };
 }
 
-function selectSql(viewerId: string | null) {
+function selectSql() {
   return `
     SELECT
       notes.id,
@@ -96,7 +96,7 @@ export function listHomeNotes(viewerId: string): NoteCardData[] {
       : [...viewerArgs(viewerId), viewerId];
 
   const rows = getDb()
-    .prepare(`${selectSql(viewerId)} WHERE ${filter} ORDER BY notes.created_at DESC LIMIT 80`)
+    .prepare(`${selectSql()} WHERE ${filter} ORDER BY notes.created_at DESC LIMIT 80`)
     .all(...params) as NoteRow[];
   return rows.map(mapNote);
 }
@@ -107,7 +107,7 @@ export function listExploreNotes(viewerId: string | null, query?: string): NoteC
     const like = `%${q.replaceAll("%", "").replaceAll("_", "")}%`;
     const rows = getDb()
       .prepare(
-        `${selectSql(viewerId)}
+        `${selectSql()}
          WHERE notes.reply_to_id IS NULL
            AND notes.visibility = 'public'
            AND (notes.body LIKE ? OR users.username LIKE ? OR users.display_name LIKE ?)
@@ -120,7 +120,7 @@ export function listExploreNotes(viewerId: string | null, query?: string): NoteC
 
   const rows = getDb()
     .prepare(
-      `${selectSql(viewerId)}
+      `${selectSql()}
        WHERE notes.reply_to_id IS NULL AND notes.visibility = 'public'
        ORDER BY notes.created_at DESC
        LIMIT 80`,
@@ -132,7 +132,7 @@ export function listExploreNotes(viewerId: string | null, query?: string): NoteC
 export function listJournalNotes(userId: string, viewerId: string | null): NoteCardData[] {
   const rows = getDb()
     .prepare(
-      `${selectSql(viewerId)}
+      `${selectSql()}
        WHERE notes.kind = 'journal'
          AND notes.user_id = ?
          AND notes.reply_to_id IS NULL
@@ -152,7 +152,7 @@ export function listProfileNotes(
   if (tab === "likes") {
     const rows = getDb()
       .prepare(
-        `${selectSql(viewerId)}
+        `${selectSql()}
          JOIN likes mine ON mine.note_id = notes.id
          WHERE mine.user_id = ?
            AND notes.reply_to_id IS NULL
@@ -167,7 +167,7 @@ export function listProfileNotes(
   const kindFilter = tab === "journal" ? "AND notes.kind = 'journal'" : "";
   const rows = getDb()
     .prepare(
-      `${selectSql(viewerId)}
+      `${selectSql()}
        WHERE notes.user_id = ?
          AND notes.reply_to_id IS NULL
          ${kindFilter}
@@ -182,7 +182,7 @@ export function listProfileNotes(
 export function listBookmarks(userId: string): NoteCardData[] {
   const rows = getDb()
     .prepare(
-      `${selectSql(userId)}
+      `${selectSql()}
        JOIN bookmarks mine ON mine.note_id = notes.id
        WHERE mine.user_id = ?
          AND (notes.visibility = 'public' OR notes.user_id = ?)
@@ -195,7 +195,7 @@ export function listBookmarks(userId: string): NoteCardData[] {
 
 export function getNote(id: string, viewerId: string | null): NoteCardData | null {
   const row = getDb()
-    .prepare(`${selectSql(viewerId)} WHERE notes.id = ?`)
+    .prepare(`${selectSql()} WHERE notes.id = ?`)
     .get(...viewerArgs(viewerId), id) as NoteRow | undefined;
   if (!row) return null;
   const note = mapNote(row);
@@ -206,7 +206,7 @@ export function getNote(id: string, viewerId: string | null): NoteCardData | nul
 export function listReplies(noteId: string, viewerId: string | null): NoteCardData[] {
   const rows = getDb()
     .prepare(
-      `${selectSql(viewerId)}
+      `${selectSql()}
        WHERE notes.reply_to_id = ?
          AND (notes.visibility = 'public' OR notes.user_id = ?)
        ORDER BY notes.created_at ASC`,

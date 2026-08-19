@@ -8,7 +8,7 @@ function secretKey() {
   return new TextEncoder().encode(secret);
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const needsAuth = PROTECTED.some((path) => pathname === path || pathname.startsWith(`${path}/`));
   if (!needsAuth) return NextResponse.next();
@@ -32,5 +32,14 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/home/:path*", "/home", "/journal/:path*", "/journal", "/bookmarks/:path*", "/bookmarks", "/settings/:path*", "/settings"],
+  matcher: [
+    "/home/:path*",
+    "/home",
+    "/journal/:path*",
+    "/journal",
+    "/bookmarks/:path*",
+    "/bookmarks",
+    "/settings/:path*",
+    "/settings",
+  ],
 };
