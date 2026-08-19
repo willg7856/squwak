@@ -32,9 +32,8 @@ export type NoteCardData = {
   username: string;
   displayName: string;
   avatarHue: number;
-  likeCount: number;
+  imageIds: string[];
   replyCount: number;
-  liked: boolean;
   bookmarked: boolean;
 };
 
@@ -51,3 +50,4 @@ export const MOODS: { id: Mood; label: string; swatch: string }[] = [
 
 export const NOTE_LIMIT = 280;
 export const JOURNAL_LIMIT = 4000;
+export const MAX_NOTE_IMAGES = 4;

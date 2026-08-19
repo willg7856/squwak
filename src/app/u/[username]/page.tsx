@@ -12,8 +12,8 @@ function ProfileBody() {
   const { username } = useParams<{ username: string }>();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
-  const tab = tabParam === "journal" || tabParam === "likes" ? tabParam : "notes";
-  const { user, notes, journalNotes, likedNotes, stats } = useNotebook();
+  const tab = tabParam === "journal" ? tabParam : "notes";
+  const { user, notes, journalNotes, stats } = useNotebook();
 
   if (!user) return null;
 
@@ -28,11 +28,10 @@ function ProfileBody() {
     );
   }
 
-  const items = tab === "journal" ? journalNotes : tab === "likes" ? likedNotes : notes;
+  const items = tab === "journal" ? journalNotes : notes;
   const tabs = [
     { id: "notes" as const, label: "Notes", href: `/u/${user.username}` },
     { id: "journal" as const, label: "Journal", href: `/u/${user.username}?tab=journal` },
-    { id: "likes" as const, label: "Liked", href: `/u/${user.username}?tab=likes` },
   ];
 
   return (
@@ -66,7 +65,7 @@ function ProfileBody() {
             </span>
           </div>
         </div>
-        <div className="grid grid-cols-3">
+        <div className="grid grid-cols-2">
           {tabs.map((item) => (
             <Link
               key={item.id}

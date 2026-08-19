@@ -70,10 +70,29 @@ export function ReplyIcon(props: IconProps) {
   );
 }
 
-export function HeartIcon({ filled, ...props }: IconProps & { filled?: boolean }) {
+export function ImageIcon(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" {...base} fill={filled ? "currentColor" : "none"} {...props}>
-      <path d="M12 20s-7-4.4-9-8.6C1.4 8 3.4 5 6.6 5 8.6 5 10 6.2 12 8.4 14 6.2 15.4 5 17.4 5 20.6 5 22.6 8 21 11.4 19 15.6 12 20 12 20z" />
+    <svg viewBox="0 0 24 24" {...base} {...props}>
+      <rect x="3.5" y="5.5" width="17" height="13" rx="2" />
+      <circle cx="8.5" cy="10" r="1.4" />
+      <path d="m7 16 3.2-3.4 2.3 2.4 3-3.5L20 16" />
+    </svg>
+  );
+}
+
+export function EmojiIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" {...base} {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M8.5 10h.01M15.5 10h.01M8.8 14.2a4.2 4.2 0 0 0 6.4 0" />
+    </svg>
+  );
+}
+
+export function CloseIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" {...base} {...props}>
+      <path d="M7 7l10 10M17 7 7 17" />
     </svg>
   );
 }

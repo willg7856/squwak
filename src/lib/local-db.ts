@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { JOURNAL_LIMIT, NOTE_LIMIT, type Mood, type NoteCardData, type NoteKind, type User, type Visibility } from "./types";
+import { JOURNAL_LIMIT, MAX_NOTE_IMAGES, NOTE_LIMIT, type Mood, type NoteCardData, type NoteKind, type User, type Visibility } from "./types";
 
 const STORAGE_KEY = "squwak.notebook.v1";
 
@@ -13,16 +13,15 @@ export type StoredNote = {
   mood: Mood | null;
   visibility: Visibility;
   replyToId: string | null;
+  imageIds: string[];
   createdAt: number;
 };
 
-type StoredLike = { userId: string; noteId: string };
 type StoredBookmark = { userId: string; noteId: string };
 
 export type NotebookState = {
   users: StoredUser[];
   notes: StoredNote[];
-  likes: StoredLike[];
   bookmarks: StoredBookmark[];
   sessionUserId: string | null;
 };
@@ -32,7 +31,6 @@ export type AuthResult = { ok: true } | { ok: false; error: string };
 const empty: NotebookState = {
   users: [],
   notes: [],
-  likes: [],
   bookmarks: [],
   sessionUserId: null,
 };
@@ -40,7 +38,6 @@ const empty: NotebookState = {
 const emptyState = (): NotebookState => ({
   users: [],
   notes: [],
-  likes: [],
   bookmarks: [],
   sessionUserId: null,
 });
@@ -58,11 +55,13 @@ function emit() {
 }
 
 function parseNotebook(raw: string): NotebookState {
-  const parsed = JSON.parse(raw) as NotebookState;
+  const parsed = JSON.parse(raw) as Partial<NotebookState> & { notes?: Array<StoredNote & { imageIds?: string[] }> };
   return {
     users: parsed.users ?? [],
-    notes: parsed.notes ?? [],
-    likes: parsed.likes ?? [],
+    notes: (parsed.notes ?? []).map((note) => ({
+      ...note,
+      imageIds: note.imageIds ?? [],
+    })),
     bookmarks: parsed.bookmarks ?? [],
     sessionUserId: parsed.sessionUserId ?? null,
   };
@@ -129,9 +128,8 @@ function hydrateNote(state: NotebookState, note: StoredNote, viewerId: string): 
     username: author.username,
     displayName: author.displayName,
     avatarHue: author.avatarHue,
-    likeCount: state.likes.filter((like) => like.noteId === note.id).length,
+    imageIds: note.imageIds ?? [],
     replyCount: state.notes.filter((item) => item.replyToId === note.id).length,
-    liked: state.likes.some((like) => like.noteId === note.id && like.userId === viewerId),
     bookmarked: state.bookmarks.some(
       (bookmark) => bookmark.noteId === note.id && bookmark.userId === viewerId,
     ),
@@ -140,7 +138,7 @@ function hydrateNote(state: NotebookState, note: StoredNote, viewerId: string): 
 
 export function listOwnNotes(
   state: NotebookState,
-  options: { kind?: NoteKind; bookmarked?: boolean; liked?: boolean; query?: string } = {},
+  options: { kind?: NoteKind; bookmarked?: boolean; query?: string } = {},
 ): NoteCardData[] {
   const user = currentUser(state);
   if (!user) return [];
@@ -152,11 +150,6 @@ export function listOwnNotes(
     .filter((note) =>
       options.bookmarked
         ? state.bookmarks.some((bookmark) => bookmark.noteId === note.id && bookmark.userId === user.id)
-        : true,
-    )
-    .filter((note) =>
-      options.liked
-        ? state.likes.some((like) => like.noteId === note.id && like.userId === user.id)
         : true,
     )
     .map((note) => hydrateNote(state, note, user.id))
@@ -278,14 +271,16 @@ export function createNote(
     kind: NoteKind;
     mood: Mood | null;
     replyToId?: string | null;
+    imageIds?: string[];
   },
 ): { state: NotebookState; noteId: string | null } {
   const user = currentUser(state);
   if (!user) return { state, noteId: null };
   const body = input.body.trim();
+  const imageIds = (input.imageIds ?? []).slice(0, MAX_NOTE_IMAGES);
   const kind = input.replyToId ? "note" : input.kind;
   const limit = kind === "journal" ? JOURNAL_LIMIT : NOTE_LIMIT;
-  if (!body || body.length > limit) return { state, noteId: null };
+  if ((!body && imageIds.length === 0) || body.length > limit) return { state, noteId: null };
 
   const note: StoredNote = {
     id: crypto.randomUUID(),
@@ -295,10 +290,17 @@ export function createNote(
     mood: kind === "journal" ? input.mood : null,
     visibility: "private",
     replyToId: input.replyToId ?? null,
+    imageIds,
     createdAt: Date.now(),
   };
 
   return { state: { ...state, notes: [note, ...state.notes] }, noteId: note.id };
+}
+
+export function noteTreeImageIds(state: NotebookState, id: string): string[] {
+  return state.notes
+    .filter((note) => note.id === id || note.replyToId === id)
+    .flatMap((note) => note.imageIds ?? []);
 }
 
 export function deleteNote(state: NotebookState, id: string): NotebookState {
@@ -314,22 +316,7 @@ export function deleteNote(state: NotebookState, id: string): NotebookState {
   return {
     ...state,
     notes: state.notes.filter((note) => !remove.has(note.id)),
-    likes: state.likes.filter((like) => !remove.has(like.noteId)),
     bookmarks: state.bookmarks.filter((bookmark) => !remove.has(bookmark.noteId)),
-  };
-}
-
-export function toggleLike(state: NotebookState, noteId: string): NotebookState {
-  const user = currentUser(state);
-  if (!user) return state;
-  const note = state.notes.find((item) => item.id === noteId && item.userId === user.id);
-  if (!note) return state;
-  const existing = state.likes.some((like) => like.noteId === noteId && like.userId === user.id);
-  return {
-    ...state,
-    likes: existing
-      ? state.likes.filter((like) => !(like.noteId === noteId && like.userId === user.id))
-      : [...state.likes, { userId: user.id, noteId }],
   };
 }
 

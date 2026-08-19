@@ -5,7 +5,8 @@ import { formatFullDate, relativeTime } from "@/lib/time";
 import { renderRichText } from "@/lib/text";
 import { MOODS, type NoteCardData } from "@/lib/types";
 import { Avatar } from "./Avatar";
-import { BookmarkIcon, HeartIcon, ReplyIcon } from "./Icons";
+import { BookmarkIcon, ReplyIcon } from "./Icons";
+import { NoteImageGrid } from "./NoteImages";
 import { useNotebook } from "./NotebookProvider";
 
 export function NoteCard({
@@ -15,7 +16,7 @@ export function NoteCard({
   note: NoteCardData;
   showThreadLink?: boolean;
 }) {
-  const { user, toggleLike, toggleBookmark, deleteNote } = useNotebook();
+  const { user, toggleBookmark, deleteNote } = useNotebook();
   const mood = MOODS.find((item) => item.id === note.mood);
   const isOwner = user?.id === note.userId;
   const bodyClass = note.kind === "journal" ? "font-journal text-[1.05rem] leading-7" : "leading-6";
@@ -51,9 +52,13 @@ export function NoteCard({
             </div>
           )}
 
-          <p className={`mt-2 whitespace-pre-wrap break-words text-ink ${bodyClass}`}>
-            {renderRichText(note.body)}
-          </p>
+          {note.body.trim() ? (
+            <p className={`mt-2 whitespace-pre-wrap break-words text-ink ${bodyClass}`}>
+              {renderRichText(note.body)}
+            </p>
+          ) : null}
+
+          <NoteImageGrid ids={note.imageIds} />
 
           <div className="mt-3 flex items-center gap-1 text-muted">
             {showThreadLink && (
@@ -66,16 +71,6 @@ export function NoteCard({
                 <span className="sr-only">replies</span>
               </Link>
             )}
-
-            <button
-              type="button"
-              onClick={() => toggleLike(note.id)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm hover:bg-heart/10 hover:text-heart ${note.liked ? "text-heart" : ""}`}
-              aria-label={note.liked ? "Unlike" : "Like"}
-            >
-              <HeartIcon className="h-4 w-4" filled={note.liked} />
-              <span>{note.likeCount || ""}</span>
-            </button>
 
             <button
               type="button"

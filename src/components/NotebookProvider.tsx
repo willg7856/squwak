@@ -8,6 +8,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
+import { deleteImages, putImage } from "@/lib/images";
 import type { Mood, NoteCardData, NoteKind, User } from "@/lib/types";
 import {
   createNote as createNoteInStore,
@@ -20,13 +21,13 @@ import {
   listOwnReplies,
   login as loginInStore,
   logout as logoutInStore,
+  noteTreeImageIds,
   ownStats,
   ownTags,
   saveNotebook,
   signup as signupInStore,
   subscribeNotebook,
   toggleBookmark as toggleBookmarkInStore,
-  toggleLike as toggleLikeInStore,
   updatePassword as updatePasswordInStore,
   updateProfile as updateProfileInStore,
   type AuthResult,
@@ -38,7 +39,6 @@ type NotebookContextValue = {
   notes: NoteCardData[];
   journalNotes: NoteCardData[];
   savedNotes: NoteCardData[];
-  likedNotes: NoteCardData[];
   tags: { tag: string; count: number }[];
   stats: { notes: number; journals: number };
   search: (query?: string) => NoteCardData[];
@@ -52,9 +52,9 @@ type NotebookContextValue = {
     kind: NoteKind;
     mood: Mood | null;
     replyToId?: string | null;
-  }) => string | null;
+    images?: Blob[];
+  }) => Promise<string | null>;
   deleteNote: (id: string) => void;
-  toggleLike: (id: string) => void;
   toggleBookmark: (id: string) => void;
   updateProfile: (input: { displayName: string; bio: string }) => AuthResult;
   updatePassword: (password: string) => AuthResult;
@@ -83,7 +83,6 @@ export function NotebookProvider({ children }: { children: ReactNode }) {
       notes: listOwnNotes(snapshot),
       journalNotes: listOwnNotes(snapshot, { kind: "journal" }),
       savedNotes: listOwnNotes(snapshot, { bookmarked: true }),
-      likedNotes: listOwnNotes(snapshot, { liked: true }),
       tags: ownTags(snapshot),
       stats: ownStats(snapshot),
       search: (query) => listOwnNotes(snapshot, { query }),
@@ -100,13 +99,38 @@ export function NotebookProvider({ children }: { children: ReactNode }) {
         return result;
       },
       logout: () => commit(logoutInStore(snapshot)),
-      createNote: (input) => {
-        const { state: next, noteId } = createNoteInStore(snapshot, input);
-        if (noteId) commit(next);
-        return noteId;
+      createNote: async (input) => {
+        const imageIds: string[] = [];
+        try {
+          for (const blob of input.images ?? []) {
+            const id = crypto.randomUUID();
+            await putImage(id, blob);
+            imageIds.push(id);
+          }
+          const current = getNotebookSnapshot();
+          const { state: next, noteId } = createNoteInStore(current, {
+            body: input.body,
+            kind: input.kind,
+            mood: input.mood,
+            replyToId: input.replyToId,
+            imageIds,
+          });
+          if (noteId) {
+            commit(next);
+            return noteId;
+          }
+          await deleteImages(imageIds);
+          return null;
+        } catch {
+          await deleteImages(imageIds);
+          return null;
+        }
       },
-      deleteNote: (id) => commit(deleteNoteInStore(snapshot, id)),
-      toggleLike: (id) => commit(toggleLikeInStore(snapshot, id)),
+      deleteNote: (id) => {
+        const imageIds = noteTreeImageIds(snapshot, id);
+        commit(deleteNoteInStore(snapshot, id));
+        void deleteImages(imageIds);
+      },
       toggleBookmark: (id) => commit(toggleBookmarkInStore(snapshot, id)),
       updateProfile: (input) => {
         const { state: next, result } = updateProfileInStore(snapshot, input);
