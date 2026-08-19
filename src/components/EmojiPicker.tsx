@@ -2,9 +2,9 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { searchEmojis } from "@/lib/emoji";
+import { EMOJI_CATEGORIES, searchEmojis, type EmojiCategorySlug } from "@/lib/emoji";
 
-const PANEL_WIDTH = 320;
+const PANEL_WIDTH = 336;
 
 export function EmojiPicker({
   open,
@@ -20,8 +20,13 @@ export function EmojiPicker({
   const rootRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
+  const [group, setGroup] = useState<EmojiCategorySlug>("smileys_emotion");
   const [position, setPosition] = useState({ top: 0, left: 0, maxHeight: 360 });
-  const matches = useMemo(() => searchEmojis(query), [query]);
+  const searching = query.trim().length > 0;
+  const matches = useMemo(
+    () => searchEmojis(query, searching ? undefined : group),
+    [group, query, searching],
+  );
 
   useLayoutEffect(() => {
     if (!open) return;
@@ -34,7 +39,7 @@ export function EmojiPicker({
       const spaceAbove = rect.top - 12;
       const openBelow = spaceBelow >= 240 || spaceBelow >= spaceAbove;
       const available = Math.max(180, openBelow ? spaceBelow : spaceAbove);
-      const maxHeight = Math.min(420, available);
+      const maxHeight = Math.min(440, available);
       let left = rect.left;
       if (left + PANEL_WIDTH > window.innerWidth - 8) {
         left = window.innerWidth - PANEL_WIDTH - 8;
@@ -94,7 +99,7 @@ export function EmojiPicker({
         ref={searchRef}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder="Search emoji"
+        placeholder="Search all emoji"
         className="mb-2 w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm text-ink outline-none placeholder:text-muted focus:border-accent"
       />
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
@@ -104,11 +109,11 @@ export function EmojiPicker({
           <div className="grid grid-cols-8">
             {matches.map((item) => (
               <button
-                key={`${item.glyph}-${item.name}`}
+                key={`${item.group}-${item.glyph}`}
                 type="button"
                 title={item.name}
                 aria-label={item.name}
-                className="flex aspect-square items-center justify-center rounded-lg text-xl leading-none hover:bg-paper-2"
+                className="flex aspect-square items-center justify-center rounded-lg text-[22px] leading-none hover:bg-paper-2"
                 onClick={() => onPick(item.glyph)}
               >
                 {item.glyph}
@@ -116,6 +121,26 @@ export function EmojiPicker({
             ))}
           </div>
         )}
+      </div>
+      <div className="mt-1 grid grid-cols-9 border-t border-line pt-1">
+        {EMOJI_CATEGORIES.map((item) => (
+          <button
+            key={item.slug}
+            type="button"
+            title={item.label}
+            aria-label={item.label}
+            aria-pressed={!searching && group === item.slug}
+            className={`flex h-8 items-center justify-center rounded-lg text-base ${
+              !searching && group === item.slug ? "bg-paper-2" : "hover:bg-paper-2"
+            }`}
+            onClick={() => {
+              setGroup(item.slug);
+              setQuery("");
+            }}
+          >
+            {item.icon}
+          </button>
+        ))}
       </div>
     </div>,
     document.body,

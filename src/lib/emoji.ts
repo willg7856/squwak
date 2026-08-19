@@ -1,200 +1,56 @@
+import keywords from "emojilib";
+import byGroup from "unicode-emoji-json/data-by-group.json";
+
 export type EmojiItem = {
   glyph: string;
   name: string;
   keywords: string;
+  group: string;
 };
 
-export const EMOJIS: EmojiItem[] = [
-  { glyph: "😀", name: "grinning", keywords: "happy smile face" },
-  { glyph: "😃", name: "smiley", keywords: "happy smile face" },
-  { glyph: "😄", name: "smile", keywords: "happy laugh face" },
-  { glyph: "😁", name: "grin", keywords: "happy teeth smile" },
-  { glyph: "😆", name: "laughing", keywords: "happy lol haha" },
-  { glyph: "😅", name: "sweat smile", keywords: "relief nervous laugh" },
-  { glyph: "😂", name: "joy", keywords: "laugh cry lol lmao tears" },
-  { glyph: "🤣", name: "rofl", keywords: "laugh rolling floor lol" },
-  { glyph: "😊", name: "blush", keywords: "happy warm smile" },
-  { glyph: "😇", name: "innocent", keywords: "angel halo smile" },
-  { glyph: "🙂", name: "slightly smiling", keywords: "smile happy" },
-  { glyph: "😉", name: "wink", keywords: "flirt joke" },
-  { glyph: "😍", name: "heart eyes", keywords: "love crush smile" },
-  { glyph: "🥰", name: "smiling hearts", keywords: "love adore" },
-  { glyph: "😘", name: "kiss", keywords: "love blow kiss" },
-  { glyph: "😗", name: "kissing", keywords: "love face" },
-  { glyph: "😋", name: "yum", keywords: "tasty delicious tongue" },
-  { glyph: "😜", name: "wink tongue", keywords: "joke silly" },
-  { glyph: "🤪", name: "zany", keywords: "goofy wild silly" },
-  { glyph: "🤗", name: "hug", keywords: "hands hug smile" },
-  { glyph: "🤭", name: "hand over mouth", keywords: "oops secret giggle" },
-  { glyph: "🤫", name: "shush", keywords: "quiet secret silence" },
-  { glyph: "🤔", name: "thinking", keywords: "hmm consider wonder" },
-  { glyph: "😐", name: "neutral", keywords: "meh blank" },
-  { glyph: "😑", name: "expressionless", keywords: "blank meh" },
-  { glyph: "😶", name: "no mouth", keywords: "silent blank" },
-  { glyph: "😏", name: "smirk", keywords: "flirt smug" },
-  { glyph: "😒", name: "unamused", keywords: "meh annoyed side eye" },
-  { glyph: "🙄", name: "eye roll", keywords: "whatever annoyed" },
-  { glyph: "😬", name: "grimace", keywords: "awkward nervous" },
-  { glyph: "😔", name: "pensive", keywords: "sad down" },
-  { glyph: "😪", name: "sleepy", keywords: "tired" },
-  { glyph: "😴", name: "sleeping", keywords: "tired sleep zzz" },
-  { glyph: "😌", name: "relieved", keywords: "calm peace" },
-  { glyph: "😷", name: "mask", keywords: "sick ill" },
-  { glyph: "🤒", name: "thermometer", keywords: "sick fever" },
-  { glyph: "🤕", name: "bandage", keywords: "hurt injured" },
-  { glyph: "🤢", name: "nauseated", keywords: "sick vomit" },
-  { glyph: "🤮", name: "vomit", keywords: "sick throw up" },
-  { glyph: "🥵", name: "hot", keywords: "heat sweating" },
-  { glyph: "🥶", name: "cold", keywords: "freezing ice" },
-  { glyph: "🥴", name: "woozy", keywords: "drunk dizzy" },
-  { glyph: "😵", name: "dizzy", keywords: "dead knocked out" },
-  { glyph: "🤯", name: "exploding head", keywords: "mind blown shock" },
-  { glyph: "🤠", name: "cowboy", keywords: "hat west" },
-  { glyph: "🥳", name: "party", keywords: "celebrate birthday hat" },
-  { glyph: "😎", name: "sunglasses", keywords: "cool sunglasses" },
-  { glyph: "🤓", name: "nerd", keywords: "glasses geek" },
-  { glyph: "🧐", name: "monocle", keywords: "inspect curious" },
-  { glyph: "😕", name: "confused", keywords: "unsure hmm" },
-  { glyph: "😟", name: "worried", keywords: "sad anxious" },
-  { glyph: "🙁", name: "slight frown", keywords: "sad" },
-  { glyph: "☹️", name: "frown", keywords: "sad unhappy" },
-  { glyph: "😮", name: "open mouth", keywords: "wow surprise" },
-  { glyph: "😯", name: "hushed", keywords: "wow surprise" },
-  { glyph: "😲", name: "astonished", keywords: "shock wow" },
-  { glyph: "😳", name: "flushed", keywords: "embarrassed blush" },
-  { glyph: "🥺", name: "pleading", keywords: "puppy eyes please cute" },
-  { glyph: "😢", name: "cry", keywords: "sad tear" },
-  { glyph: "😭", name: "sob", keywords: "sad cry tears bawling" },
-  { glyph: "😤", name: "huffing", keywords: "angry steam" },
-  { glyph: "😠", name: "angry", keywords: "mad" },
-  { glyph: "😡", name: "rage", keywords: "mad angry red" },
-  { glyph: "🤬", name: "swearing", keywords: "mad curse angry" },
-  { glyph: "😈", name: "smiling devil", keywords: "evil mischief" },
-  { glyph: "👿", name: "angry devil", keywords: "evil mad" },
-  { glyph: "💀", name: "skull", keywords: "dead death bones dying" },
-  { glyph: "☠️", name: "skull crossbones", keywords: "dead death poison" },
-  { glyph: "💩", name: "poop", keywords: "poo crap" },
-  { glyph: "🤡", name: "clown", keywords: "joke funny" },
-  { glyph: "👻", name: "ghost", keywords: "halloween spooky" },
-  { glyph: "👽", name: "alien", keywords: "ufo space" },
-  { glyph: "👾", name: "alien monster", keywords: "game space invader" },
-  { glyph: "🤖", name: "robot", keywords: "bot machine" },
-  { glyph: "🎃", name: "pumpkin", keywords: "halloween jack" },
-  { glyph: "😺", name: "smiley cat", keywords: "cat happy" },
-  { glyph: "😹", name: "joy cat", keywords: "cat laugh tears" },
-  { glyph: "😻", name: "heart eyes cat", keywords: "cat love" },
-  { glyph: "👋", name: "wave", keywords: "hello hi bye hand" },
-  { glyph: "🤚", name: "raised back of hand", keywords: "stop hand" },
-  { glyph: "🖐️", name: "hand", keywords: "five palm" },
-  { glyph: "✋", name: "raised hand", keywords: "stop high five" },
-  { glyph: "👌", name: "ok", keywords: "okay perfect" },
-  { glyph: "✌️", name: "victory", keywords: "peace two" },
-  { glyph: "🤞", name: "crossed fingers", keywords: "luck hope" },
-  { glyph: "🤟", name: "love you gesture", keywords: "ily rock" },
-  { glyph: "🤘", name: "rock on", keywords: "horns metal" },
-  { glyph: "👍", name: "thumbs up", keywords: "yes like good" },
-  { glyph: "👎", name: "thumbs down", keywords: "no dislike bad" },
-  { glyph: "✊", name: "fist", keywords: "power solidarity" },
-  { glyph: "👊", name: "punch", keywords: "fist bump" },
-  { glyph: "👏", name: "clap", keywords: "applause bravo" },
-  { glyph: "🙌", name: "raised hands", keywords: "hooray praise" },
-  { glyph: "🫶", name: "heart hands", keywords: "love" },
-  { glyph: "🙏", name: "folded hands", keywords: "please thanks pray" },
-  { glyph: "💪", name: "flex", keywords: "strong muscle gym" },
-  { glyph: "👀", name: "eyes", keywords: "look see watching" },
-  { glyph: "👁️", name: "eye", keywords: "look see" },
-  { glyph: "🧠", name: "brain", keywords: "smart think" },
-  { glyph: "❤️", name: "red heart", keywords: "love like" },
-  { glyph: "🧡", name: "orange heart", keywords: "love" },
-  { glyph: "💛", name: "yellow heart", keywords: "love" },
-  { glyph: "💚", name: "green heart", keywords: "love" },
-  { glyph: "💙", name: "blue heart", keywords: "love" },
-  { glyph: "💜", name: "purple heart", keywords: "love" },
-  { glyph: "🖤", name: "black heart", keywords: "love" },
-  { glyph: "🤍", name: "white heart", keywords: "love" },
-  { glyph: "🤎", name: "brown heart", keywords: "love" },
-  { glyph: "💔", name: "broken heart", keywords: "sad love breakup" },
-  { glyph: "💕", name: "two hearts", keywords: "love" },
-  { glyph: "💞", name: "revolving hearts", keywords: "love" },
-  { glyph: "💖", name: "sparkling heart", keywords: "love sparkle" },
-  { glyph: "💗", name: "growing heart", keywords: "love" },
-  { glyph: "💘", name: "heart arrow", keywords: "love cupid" },
-  { glyph: "💝", name: "heart bow", keywords: "love gift" },
-  { glyph: "💯", name: "hundred", keywords: "100 keep it real perfect" },
-  { glyph: "✨", name: "sparkles", keywords: "shine magic glitter" },
-  { glyph: "🔥", name: "fire", keywords: "lit hot flame" },
-  { glyph: "⭐", name: "star", keywords: "favorite night" },
-  { glyph: "🌟", name: "glowing star", keywords: "shine favorite" },
-  { glyph: "⚡", name: "zap", keywords: "lightning energy" },
-  { glyph: "💥", name: "boom", keywords: "explosion crash" },
-  { glyph: "🌈", name: "rainbow", keywords: "pride color" },
-  { glyph: "☀️", name: "sun", keywords: "weather sunny" },
-  { glyph: "🌙", name: "moon", keywords: "night crescent" },
-  { glyph: "☁️", name: "cloud", keywords: "weather" },
-  { glyph: "☔", name: "umbrella rain", keywords: "weather rain" },
-  { glyph: "❄️", name: "snowflake", keywords: "cold winter" },
-  { glyph: "🌸", name: "cherry blossom", keywords: "flower spring" },
-  { glyph: "🌹", name: "rose", keywords: "flower love" },
-  { glyph: "🌻", name: "sunflower", keywords: "flower" },
-  { glyph: "🍀", name: "clover", keywords: "luck four leaf" },
-  { glyph: "🍂", name: "fallen leaf", keywords: "autumn fall" },
-  { glyph: "🍎", name: "apple", keywords: "fruit food" },
-  { glyph: "🍓", name: "strawberry", keywords: "fruit food" },
-  { glyph: "🍕", name: "pizza", keywords: "food" },
-  { glyph: "🍔", name: "burger", keywords: "food hamburger" },
-  { glyph: "🍟", name: "fries", keywords: "food" },
-  { glyph: "🍣", name: "sushi", keywords: "food" },
-  { glyph: "🍜", name: "ramen", keywords: "food noodles soup" },
-  { glyph: "🍩", name: "donut", keywords: "food doughnut sweet" },
-  { glyph: "🍪", name: "cookie", keywords: "food sweet" },
-  { glyph: "🎂", name: "cake", keywords: "birthday food" },
-  { glyph: "☕", name: "coffee", keywords: "tea drink cafe" },
-  { glyph: "🍺", name: "beer", keywords: "drink alcohol" },
-  { glyph: "🍻", name: "beers", keywords: "cheers drink" },
-  { glyph: "🍷", name: "wine", keywords: "drink alcohol" },
-  { glyph: "🍾", name: "champagne", keywords: "celebrate drink" },
-  { glyph: "🎵", name: "music note", keywords: "song" },
-  { glyph: "🎶", name: "notes", keywords: "music song" },
-  { glyph: "📸", name: "camera", keywords: "photo picture" },
-  { glyph: "💡", name: "bulb", keywords: "idea light" },
-  { glyph: "📌", name: "pin", keywords: "pushpin" },
-  { glyph: "📝", name: "memo", keywords: "write note pencil" },
-  { glyph: "📚", name: "books", keywords: "read study" },
-  { glyph: "✈️", name: "airplane", keywords: "travel flight" },
-  { glyph: "🚗", name: "car", keywords: "drive travel" },
-  { glyph: "🏠", name: "house", keywords: "home" },
-  { glyph: "✅", name: "check", keywords: "done yes ok" },
-  { glyph: "❌", name: "cross", keywords: "no x wrong" },
-  { glyph: "⚠️", name: "warning", keywords: "caution alert" },
-  { glyph: "❗", name: "exclamation", keywords: "bang important" },
-  { glyph: "❓", name: "question", keywords: "ask huh" },
-  { glyph: "➡️", name: "right arrow", keywords: "next" },
-  { glyph: "🎉", name: "tada", keywords: "party celebrate confetti" },
-  { glyph: "🎊", name: "confetti", keywords: "party celebrate" },
-  { glyph: "🏆", name: "trophy", keywords: "win award" },
-  { glyph: "🎯", name: "bullseye", keywords: "target goal" },
-  { glyph: "💬", name: "speech", keywords: "chat comment" },
-  { glyph: "💤", name: "zzz", keywords: "sleep tired" },
-  { glyph: "🫡", name: "salute", keywords: "respect yes sir" },
-  { glyph: "🫠", name: "melting", keywords: "hot dissolve dying" },
-];
+type UnicodeGroup = {
+  name: string;
+  slug: string;
+  emojis: { emoji: string; name: string; slug: string }[];
+};
 
-export function searchEmojis(query: string): EmojiItem[] {
+const groups = byGroup as UnicodeGroup[];
+const keywordMap = keywords as Record<string, string[]>;
+
+export const EMOJI_CATEGORIES = [
+  { slug: "smileys_emotion", label: "Smileys", icon: "😀" },
+  { slug: "people_body", label: "People", icon: "👋" },
+  { slug: "animals_nature", label: "Nature", icon: "🐻" },
+  { slug: "food_drink", label: "Food", icon: "🍕" },
+  { slug: "travel_places", label: "Places", icon: "✈️" },
+  { slug: "activities", label: "Activity", icon: "⚽" },
+  { slug: "objects", label: "Objects", icon: "💡" },
+  { slug: "symbols", label: "Symbols", icon: "💜" },
+  { slug: "flags", label: "Flags", icon: "🏁" },
+] as const;
+
+export type EmojiCategorySlug = (typeof EMOJI_CATEGORIES)[number]["slug"];
+
+export const EMOJIS: EmojiItem[] = groups.flatMap((group) =>
+  group.emojis.map((item) => {
+    const extra = keywordMap[item.emoji] ?? [];
+    return {
+      glyph: item.emoji,
+      name: item.name,
+      keywords: `${item.slug.replaceAll("_", " ")} ${extra.join(" ").replaceAll("_", " ")}`.toLowerCase(),
+      group: group.slug,
+    };
+  }),
+);
+
+export function searchEmojis(query: string, group?: string): EmojiItem[] {
   const needle = query.trim().toLowerCase();
-  if (!needle) {
-    const seen = new Set<string>();
-    return EMOJIS.filter((item) => {
-      if (seen.has(item.glyph)) return false;
-      seen.add(item.glyph);
-      return true;
-    });
-  }
-  const seen = new Set<string>();
-  return EMOJIS.filter((item) => {
-    if (seen.has(item.glyph)) return false;
-    const haystack = `${item.name} ${item.keywords} ${item.glyph}`;
-    if (!haystack.includes(needle)) return false;
-    seen.add(item.glyph);
-    return true;
-  });
+  const pool = group ? EMOJIS.filter((item) => item.group === group) : EMOJIS;
+  if (!needle) return pool;
+  return pool.filter(
+    (item) =>
+      item.name.includes(needle) ||
+      item.keywords.includes(needle) ||
+      item.glyph.includes(needle),
+  );
 }
